@@ -5,32 +5,31 @@ import (
 	"database-example/model"
 	"database-example/repo"
 	"database-example/service"
+	"gorm.io/driver/postgres"
 	"log"
 	"net/http"
 
 	"github.com/gorilla/mux"
-	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
 
 func initDB() *gorm.DB {
-	connectionStr := "root:root@tcp(localhost:3306)/students?charset=utf8mb4&parseTime=True&loc=Local"
-	database, err := gorm.Open(mysql.Open(connectionStr), &gorm.Config{})
+	dsn := "user=postgres password=super dbname=explorer-v1 host=localhost port=5432 sslmode=disable search_path=encounters"
+	database, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
 		print(err)
 		return nil
 	}
 
-	database.AutoMigrate(&model.Student{}) // migracije da bismo napravili tabele
-	database.Exec("INSERT IGNORE INTO students VALUES ('aec7e123-233d-4a09-a289-75308ea5b7e6', 'Marko Markovic', 'Graficki dizajn')")
+	database.AutoMigrate(&model.EncounterExecution{})
 	return database
 }
 
-func startServer(handler *handler.StudentHandler) {
+func startServer(handler *handler.EncounterExecutionHandler) {
 	router := mux.NewRouter().StrictSlash(true)
 
-	router.HandleFunc("/students/{id}", handler.Get).Methods("GET")
-	router.HandleFunc("/students", handler.Create).Methods("POST")
+	// Encounter Execution
+	router.HandleFunc("/encounterExecution/getActive/{userId}", handler.GetExecutionByUser).Methods("GET")
 
 	router.PathPrefix("/").Handler(http.FileServer(http.Dir("./static")))
 	println("Server starting")
@@ -43,9 +42,9 @@ func main() {
 		print("FAILED TO CONNECT TO DB")
 		return
 	}
-	repo := &repo.StudentRepository{DatabaseConnection: database}
-	service := &service.StudentService{StudentRepo: repo}
-	handler := &handler.StudentHandler{StudentService: service}
+	encounterExecutionRepo := &repo.EncounterExecutionRepository{DatabaseConnection: database}
+	encounterExecutionService := &service.EncounterExecutionService{EncounterExecutionRepo: encounterExecutionRepo}
+	encounterExecutionHandler := &handler.EncounterExecutionHandler{EncounterExecutionService: encounterExecutionService}
 
-	startServer(handler)
+	startServer(encounterExecutionHandler)
 }
