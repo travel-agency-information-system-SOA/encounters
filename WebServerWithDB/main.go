@@ -33,7 +33,7 @@ func startServer(handler *handler.EncounterExecutionHandler) {
 
 	router.PathPrefix("/").Handler(http.FileServer(http.Dir("./static")))
 	println("Server starting")
-	log.Fatal(http.ListenAndServe(":8080", router))
+	log.Fatal(http.ListenAndServe(":4000", router))
 }
 
 func main() {

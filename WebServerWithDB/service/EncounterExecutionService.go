@@ -14,7 +14,7 @@ func (service *EncounterExecutionService) GetExecutionByUser(userID int) (*model
 	if err != nil {
 		return nil, err
 	}
-	if !encounter.IsCompleted {
+	if encounter.IsCompleted {
 		return nil, nil
 	}
 	return &encounter, nil
