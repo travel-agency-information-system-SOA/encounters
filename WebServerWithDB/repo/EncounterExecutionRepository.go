@@ -17,3 +17,11 @@ func (repo *EncounterExecutionRepository) FindByUserId(userID int) (model.Encoun
 	}
 	return encounter, nil
 }
+
+func (repo *EncounterExecutionRepository) Update(encounter *model.EncounterExecution) error {
+	dbResult := repo.DatabaseConnection.Save(encounter)
+	if dbResult.Error != nil {
+		return dbResult.Error
+	}
+	return nil
+}
