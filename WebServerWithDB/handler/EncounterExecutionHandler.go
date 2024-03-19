@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"database-example/model"
 	"database-example/service"
 	"encoding/json"
 	"github.com/gorilla/mux"
@@ -72,4 +73,55 @@ func (handler *EncounterExecutionHandler) CompleteEncounter(writer http.Response
 	writer.Header().Set("Content-Type", "application/json")
 	writer.WriteHeader(http.StatusOK)
 	writer.Write(jsonResponse)
+}
+
+func (handler *EncounterExecutionHandler) Create(writer http.ResponseWriter, req *http.Request) {
+	var encounter model.EncounterExecution
+	err := json.NewDecoder(req.Body).Decode(&encounter)
+	if err != nil {
+		writer.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	err = handler.EncounterExecutionService.CreateEncounter(&encounter)
+	if err != nil {
+		writer.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	writer.WriteHeader(http.StatusCreated)
+	writer.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(writer).Encode(encounter)
+}
+
+func (handler *EncounterExecutionHandler) Update(writer http.ResponseWriter, req *http.Request) {
+	vars := mux.Vars(req)
+	encIdStr, ok := vars["id"]
+	if !ok {
+		writer.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	encId, err := strconv.Atoi(encIdStr)
+	if err != nil {
+		writer.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	var encounter model.EncounterExecution
+	err = json.NewDecoder(req.Body).Decode(&encounter)
+	if err != nil {
+		writer.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	err = handler.EncounterExecutionService.UpdateEncounter(encId, &encounter)
+	if err != nil {
+		writer.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	writer.WriteHeader(http.StatusOK)
+	writer.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(writer).Encode(encounter)
 }

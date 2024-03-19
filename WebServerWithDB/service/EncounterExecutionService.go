@@ -26,7 +26,7 @@ func (service *EncounterExecutionService) CompleteEncounter(userID int) (*model.
 	if err != nil {
 		return nil, err
 	}
-	
+
 	encounter.CompletionTime = time.Now()
 	encounter.IsCompleted = true
 
@@ -37,4 +37,21 @@ func (service *EncounterExecutionService) CompleteEncounter(userID int) (*model.
 		return nil, err
 	}
 	return &encounter, nil
+}
+
+func (service *EncounterExecutionService) CreateEncounter(encounter *model.EncounterExecution) error {
+	err := service.EncounterExecutionRepo.Create(encounter)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (service *EncounterExecutionService) UpdateEncounter(id int, encounter *model.EncounterExecution) error {
+	encounter.ID = id
+	err := service.EncounterExecutionRepo.Update(encounter)
+	if err != nil {
+		return err
+	}
+	return nil
 }

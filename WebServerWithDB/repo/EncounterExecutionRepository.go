@@ -25,3 +25,11 @@ func (repo *EncounterExecutionRepository) Update(encounter *model.EncounterExecu
 	}
 	return nil
 }
+
+func (repo *EncounterExecutionRepository) Create(encounter *model.EncounterExecution) error {
+	dbResult := repo.DatabaseConnection.Create(encounter)
+	if dbResult.Error != nil {
+		return dbResult.Error
+	}
+	return nil
+}

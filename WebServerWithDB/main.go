@@ -31,6 +31,8 @@ func startServer(handler *handler.EncounterExecutionHandler) {
 	// Encounter Execution
 	router.HandleFunc("/encounterExecution/getActive/{userId}", handler.GetExecutionByUser).Methods("GET")
 	router.HandleFunc("/encounterExecution/completeExecution/{userId}", handler.CompleteEncounter).Methods("GET")
+	router.HandleFunc("/encounterExecution/create", handler.Create).Methods("POST")
+	router.HandleFunc("/encounterExecution/update/{id}", handler.Update).Methods("PUT")
 
 	router.PathPrefix("/").Handler(http.FileServer(http.Dir("./static")))
 	println("Server starting")
