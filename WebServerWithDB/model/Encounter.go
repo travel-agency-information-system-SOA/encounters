@@ -20,7 +20,7 @@ const (
 )
 
 type Encounter struct {
-	ID                  int                  `json:"id" gorm:"column:Id;primaryKey;autoIncrement"`
+	ID                  int                  `json:"id" gorm:"column:id;primaryKey;autoIncrement"`
 	Name                string               `json:"name" gorm:"not null;type:string"`
 	Description         string               `json:"description"`
 	XpPoints            int                  `json:"xpPoints"`

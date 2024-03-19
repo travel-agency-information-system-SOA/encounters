@@ -37,6 +37,19 @@ func startEncounterServer(handler *handler.EncounterHandler) {
 	router.HandleFunc("/encounters/create", handler.Create).Methods("POST")
 	router.HandleFunc("/encounters/createSocialEncounter", handler.CreateSocialEncounter).Methods("POST")
 	router.HandleFunc("/encounters/createHiddenLocationEncounter", handler.CreateHiddenLocationEncounter).Methods("POST")
+	router.HandleFunc("/encounters", handler.GetAllEncounters).Methods("GET")
+	router.HandleFunc("/hiddenLocationEncounters", handler.GetAllHiddenLocationEncounters).Methods("GET")
+	router.HandleFunc("/socialEncounters", handler.GetAllSocialEncounters).Methods("GET")
+	router.HandleFunc("/encounters/update", handler.Update).Methods("PUT")
+	router.HandleFunc("/encounters/updateHiddenLocationEncounter", handler.UpdateHiddenLocationEncounter).Methods("PUT")
+	router.HandleFunc("/encounters/updateSocialEncounter", handler.UpdateSocialEncounter).Methods("PUT")
+
+	router.HandleFunc("/encounters/getSocialEncounterId/{baseEncounterId}", handler.GetSocialEncounterId).Methods("GET")
+	router.HandleFunc("/encounters/getHiddenLocationEncounterId/{baseEncounterId}", handler.GetHiddenLocationEncounterId).Methods("GET")
+
+	router.HandleFunc("/encounters/deleteEncounter/{baseEncounterId}", handler.DeleteEncounter).Methods("DELETE")
+	router.HandleFunc("/encounters/deleteSocialEncounter/{socialEncounterId}", handler.DeleteSocialEncounter).Methods("DELETE")
+	router.HandleFunc("/encounters/deleteHiddenLocationEncounter/{hiddenLocationEncounterId}", handler.DeleteHiddenLocationEncounter).Methods("DELETE")
 
 	router.PathPrefix("/").Handler(http.FileServer(http.Dir("./static")))
 	println("Server starting")
