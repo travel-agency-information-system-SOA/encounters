@@ -5,7 +5,6 @@ import (
 	"database-example/model"
 	"database-example/repo"
 	"database-example/service"
-	"gorm.io/driver/postgres"
 	"log"
 	"net/http"
 
@@ -27,32 +26,32 @@ func initDB() *gorm.DB {
 	return database
 }
 
-func startEncounterServer(handler *handler.EncounterHandler, handler *handler.EncounterExecutionHandler) {
+func startServer(handlerEnc *handler.EncounterHandler, handlerExec *handler.EncounterExecutionHandler) {
 	router := mux.NewRouter().StrictSlash(true)
 
 	//za zahteve iz c# proj ka ovamo
-	router.HandleFunc("/encounters/create", handler.Create).Methods("POST")
-	router.HandleFunc("/encounters/createSocialEncounter", handler.CreateSocialEncounter).Methods("POST")
-	router.HandleFunc("/encounters/createHiddenLocationEncounter", handler.CreateHiddenLocationEncounter).Methods("POST")
-	router.HandleFunc("/encounters", handler.GetAllEncounters).Methods("GET")
-	router.HandleFunc("/hiddenLocationEncounters", handler.GetAllHiddenLocationEncounters).Methods("GET")
-	router.HandleFunc("/socialEncounters", handler.GetAllSocialEncounters).Methods("GET")
-	router.HandleFunc("/encounters/update", handler.Update).Methods("PUT")
-	router.HandleFunc("/encounters/updateHiddenLocationEncounter", handler.UpdateHiddenLocationEncounter).Methods("PUT")
-	router.HandleFunc("/encounters/updateSocialEncounter", handler.UpdateSocialEncounter).Methods("PUT")
+	router.HandleFunc("/encounters/create", handlerEnc.Create).Methods("POST")
+	router.HandleFunc("/encounters/createSocialEncounter", handlerEnc.CreateSocialEncounter).Methods("POST")
+	router.HandleFunc("/encounters/createHiddenLocationEncounter", handlerEnc.CreateHiddenLocationEncounter).Methods("POST")
+	router.HandleFunc("/encounters", handlerEnc.GetAllEncounters).Methods("GET")
+	router.HandleFunc("/hiddenLocationEncounters", handlerEnc.GetAllHiddenLocationEncounters).Methods("GET")
+	router.HandleFunc("/socialEncounters", handlerEnc.GetAllSocialEncounters).Methods("GET")
+	router.HandleFunc("/encounters/update", handlerEnc.Update).Methods("PUT")
+	router.HandleFunc("/encounters/updateHiddenLocationEncounter", handlerEnc.UpdateHiddenLocationEncounter).Methods("PUT")
+	router.HandleFunc("/encounters/updateSocialEncounter", handlerEnc.UpdateSocialEncounter).Methods("PUT")
 
-	router.HandleFunc("/encounters/getSocialEncounterId/{baseEncounterId}", handler.GetSocialEncounterId).Methods("GET")
-	router.HandleFunc("/encounters/getHiddenLocationEncounterId/{baseEncounterId}", handler.GetHiddenLocationEncounterId).Methods("GET")
+	router.HandleFunc("/encounters/getSocialEncounterId/{baseEncounterId}", handlerEnc.GetSocialEncounterId).Methods("GET")
+	router.HandleFunc("/encounters/getHiddenLocationEncounterId/{baseEncounterId}", handlerEnc.GetHiddenLocationEncounterId).Methods("GET")
 
-	router.HandleFunc("/encounters/deleteEncounter/{baseEncounterId}", handler.DeleteEncounter).Methods("DELETE")
-	router.HandleFunc("/encounters/deleteSocialEncounter/{socialEncounterId}", handler.DeleteSocialEncounter).Methods("DELETE")
-	router.HandleFunc("/encounters/deleteHiddenLocationEncounter/{hiddenLocationEncounterId}", handler.DeleteHiddenLocationEncounter).Methods("DELETE")
+	router.HandleFunc("/encounters/deleteEncounter/{baseEncounterId}", handlerEnc.DeleteEncounter).Methods("DELETE")
+	router.HandleFunc("/encounters/deleteSocialEncounter/{socialEncounterId}", handlerEnc.DeleteSocialEncounter).Methods("DELETE")
+	router.HandleFunc("/encounters/deleteHiddenLocationEncounter/{hiddenLocationEncounterId}", handlerEnc.DeleteHiddenLocationEncounter).Methods("DELETE")
 
 	// Encounter Execution
-	router.HandleFunc("/encounterExecution/getActive/{userId}", handler.GetExecutionByUser).Methods("GET")
-	router.HandleFunc("/encounterExecution/completeExecution/{userId}", handler.CompleteEncounter).Methods("GET")
-	router.HandleFunc("/encounterExecution/create", handler.Create).Methods("POST")
-	router.HandleFunc("/encounterExecution/update/{id}", handler.Update).Methods("PUT")
+	router.HandleFunc("/encounterExecution/getActive/{userId}", handlerExec.GetExecutionByUser).Methods("GET")
+	router.HandleFunc("/encounterExecution/completeExecution/{userId}", handlerExec.CompleteEncounter).Methods("GET")
+	router.HandleFunc("/encounterExecution/create", handlerExec.Create).Methods("POST")
+	router.HandleFunc("/encounterExecution/update/{id}", handlerExec.Update).Methods("PUT")
 
 	router.PathPrefix("/").Handler(http.FileServer(http.Dir("./static")))
 	println("Server starting")
@@ -66,13 +65,13 @@ func main() {
 		return
 	}
 
-	repo := &repo.EncounterRepository{DatabaseConnection: database}
-	service := &service.EncounterService{EncounterRepo: repo}
-	handler := &handler.EncounterHandler{EncounterService: service}
+	encounterRepo := &repo.EncounterRepository{DatabaseConnection: database}
+	encounterService := &service.EncounterService{EncounterRepo: encounterRepo}
+	encounterHandler := &handler.EncounterHandler{EncounterService: encounterService}
 
 	encounterExecutionRepo := &repo.EncounterExecutionRepository{DatabaseConnection: database}
 	encounterExecutionService := &service.EncounterExecutionService{EncounterExecutionRepo: encounterExecutionRepo}
 	encounterExecutionHandler := &handler.EncounterExecutionHandler{EncounterExecutionService: encounterExecutionService}
 
-	startServer(handler, encounterExecutionHandler)
+	startServer(encounterHandler, encounterExecutionHandler)
 }
