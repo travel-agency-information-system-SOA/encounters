@@ -125,3 +125,44 @@ func (handler *EncounterExecutionHandler) Update(writer http.ResponseWriter, req
 	writer.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(writer).Encode(encounter)
 }
+
+func (handler *EncounterExecutionHandler) Delete(writer http.ResponseWriter, req *http.Request) {
+	vars := mux.Vars(req)
+	encIdStr, ok := vars["id"]
+	if !ok {
+		writer.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	encId, err := strconv.Atoi(encIdStr)
+	if err != nil {
+		writer.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	err = handler.EncounterExecutionService.DeleteEncounter(encId)
+	if err != nil {
+		writer.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	writer.WriteHeader(http.StatusOK)
+}
+
+func (handler *EncounterExecutionHandler) GetAll(writer http.ResponseWriter, req *http.Request) {
+	encounters, err := handler.EncounterExecutionService.GetAllEncounters()
+	if err != nil {
+		writer.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	encountersJson, err := json.Marshal(encounters)
+	if err != nil {
+		writer.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	writer.WriteHeader(http.StatusOK)
+	writer.Header().Set("Content-Type", "application/json")
+	writer.Write(encountersJson)
+}

@@ -33,3 +33,20 @@ func (repo *EncounterExecutionRepository) Create(encounter *model.EncounterExecu
 	}
 	return nil
 }
+
+func (repo *EncounterExecutionRepository) Delete(encounterExecId int) error {
+	dbResult := repo.DatabaseConnection.Exec("DELETE FROM encounter_executions WHERE id = ?", encounterExecId)
+	if dbResult.Error != nil {
+		return dbResult.Error
+	}
+	return nil
+}
+
+func (repo *EncounterExecutionRepository) GetAll() ([]*model.EncounterExecution, error) {
+	var encounters []*model.EncounterExecution
+	dbResult := repo.DatabaseConnection.Find(&encounters)
+	if dbResult.Error != nil {
+		return nil, dbResult.Error
+	}
+	return encounters, nil
+}
