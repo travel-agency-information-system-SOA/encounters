@@ -33,3 +33,11 @@ func (repo *EncounterExecutionRepository) Create(encounter *model.EncounterExecu
 	}
 	return nil
 }
+
+func (repo *EncounterExecutionRepository) Delete(encounterExecId int) error {
+	dbResult := repo.DatabaseConnection.Exec("DELETE FROM encounter_executions WHERE id = ?", encounterExecId)
+	if dbResult.Error != nil {
+		return dbResult.Error
+	}
+	return nil
+}

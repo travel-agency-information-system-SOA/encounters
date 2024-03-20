@@ -52,6 +52,7 @@ func startServer(handlerEnc *handler.EncounterHandler, handlerExec *handler.Enco
 	router.HandleFunc("/encounterExecution/completeExecution/{userId}", handlerExec.CompleteEncounter).Methods("GET")
 	router.HandleFunc("/encounterExecution/create", handlerExec.Create).Methods("POST")
 	router.HandleFunc("/encounterExecution/update/{id}", handlerExec.Update).Methods("PUT")
+	router.HandleFunc("/encounterExecution/delete/{id}", handlerExec.Delete).Methods("DELETE")
 
 	router.PathPrefix("/").Handler(http.FileServer(http.Dir("./static")))
 	println("Server starting")

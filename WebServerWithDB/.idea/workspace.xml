@@ -6,8 +6,11 @@
   <component name="ChangeListManager">
     <list default="true" id="d47ba5e0-0aef-4e67-a727-4db5b03e175b" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/go.mod" beforeDir="false" afterPath="$PROJECT_DIR$/go.mod" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/handler/EncounterExecutionHandler.go" beforeDir="false" afterPath="$PROJECT_DIR$/handler/EncounterExecutionHandler.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.exe" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/main.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/repo/EncounterExecutionRepository.go" beforeDir="false" afterPath="$PROJECT_DIR$/repo/EncounterExecutionRepository.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/service/EncounterExecutionService.go" beforeDir="false" afterPath="$PROJECT_DIR$/service/EncounterExecutionService.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -42,7 +45,7 @@
     "RunOnceActivity.go.migrated.go.modules.settings": "true",
     "RunOnceActivity.go.modules.automatic.dependencies.download": "true",
     "RunOnceActivity.go.modules.go.list.on.any.changes.was.set": "true",
-    "git-widget-placeholder": "development",
+    "git-widget-placeholder": "feat/encounter-execution",
     "go.import.settings.migrated": "true",
     "go.sdk.automatically.set": "true",
     "last_opened_file_path": "D:/Faks/semestar8/SOA/Kod/encounters/WebServerWithDB",

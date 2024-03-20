@@ -55,3 +55,11 @@ func (service *EncounterExecutionService) UpdateEncounter(id int, encounter *mod
 	}
 	return nil
 }
+
+func (service *EncounterExecutionService) DeleteEncounter(id int) error {
+	err := service.EncounterExecutionRepo.Delete(id)
+	if err != nil {
+		return err
+	}
+	return nil
+}
