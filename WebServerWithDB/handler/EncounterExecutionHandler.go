@@ -148,3 +148,21 @@ func (handler *EncounterExecutionHandler) Delete(writer http.ResponseWriter, req
 
 	writer.WriteHeader(http.StatusOK)
 }
+
+func (handler *EncounterExecutionHandler) GetAll(writer http.ResponseWriter, req *http.Request) {
+	encounters, err := handler.EncounterExecutionService.GetAllEncounters()
+	if err != nil {
+		writer.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	encountersJson, err := json.Marshal(encounters)
+	if err != nil {
+		writer.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	writer.WriteHeader(http.StatusOK)
+	writer.Header().Set("Content-Type", "application/json")
+	writer.Write(encountersJson)
+}

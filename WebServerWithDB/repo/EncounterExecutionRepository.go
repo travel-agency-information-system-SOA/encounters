@@ -41,3 +41,12 @@ func (repo *EncounterExecutionRepository) Delete(encounterExecId int) error {
 	}
 	return nil
 }
+
+func (repo *EncounterExecutionRepository) GetAll() ([]*model.EncounterExecution, error) {
+	var encounters []*model.EncounterExecution
+	dbResult := repo.DatabaseConnection.Find(&encounters)
+	if dbResult.Error != nil {
+		return nil, dbResult.Error
+	}
+	return encounters, nil
+}

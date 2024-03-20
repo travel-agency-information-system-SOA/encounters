@@ -63,3 +63,11 @@ func (service *EncounterExecutionService) DeleteEncounter(id int) error {
 	}
 	return nil
 }
+
+func (service *EncounterExecutionService) GetAllEncounters() ([]*model.EncounterExecution, error) {
+	encounters, err := service.EncounterExecutionRepo.GetAll()
+	if err != nil {
+		return nil, err
+	}
+	return encounters, nil
+}
