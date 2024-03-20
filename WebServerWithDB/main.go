@@ -5,6 +5,7 @@ import (
 	"database-example/model"
 	"database-example/repo"
 	"database-example/service"
+	"gorm.io/driver/postgres"
 	"log"
 	"net/http"
 
@@ -15,23 +16,19 @@ import (
 )
 
 func initDB() *gorm.DB {
-	dsn := "user=postgres password=super dbname=explorer-v1 host=localhost port=5432 sslmode=disable search_path=encounters" // podesavanje baze
+	dsn := "user=postgres password=super dbname=explorer-v1 host=localhost port=5432 sslmode=disable search_path=encounters"
 	database, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
 		print(err)
 		return nil
 	}
 
-	database.AutoMigrate(&model.Encounter{}, &model.SocialEncounter{}, &model.HiddenLocationEncounter{}) // migracije da bismo napravili tabele
-	//database.Exec("INSERT IGNORE INTO students VALUES ('aec7e123-233d-4a09-a289-75308ea5b7e6', 'Marko Markovic', 'Graficki dizajn')")
+	database.AutoMigrate(&model.Encounter{}, &model.SocialEncounter{}, &model.HiddenLocationEncounter{}, &model.EncounterExecution{})
 	return database
 }
 
-func startEncounterServer(handler *handler.EncounterHandler) {
+func startEncounterServer(handler *handler.EncounterHandler, handler *handler.EncounterExecutionHandler) {
 	router := mux.NewRouter().StrictSlash(true)
-
-	//router.HandleFunc("/students/{id}", handler.Get).Methods("GET")
-	//router.HandleFunc("/students", handler.Create).Methods("POST")
 
 	//za zahteve iz c# proj ka ovamo
 	router.HandleFunc("/encounters/create", handler.Create).Methods("POST")
@@ -51,6 +48,12 @@ func startEncounterServer(handler *handler.EncounterHandler) {
 	router.HandleFunc("/encounters/deleteSocialEncounter/{socialEncounterId}", handler.DeleteSocialEncounter).Methods("DELETE")
 	router.HandleFunc("/encounters/deleteHiddenLocationEncounter/{hiddenLocationEncounterId}", handler.DeleteHiddenLocationEncounter).Methods("DELETE")
 
+	// Encounter Execution
+	router.HandleFunc("/encounterExecution/getActive/{userId}", handler.GetExecutionByUser).Methods("GET")
+	router.HandleFunc("/encounterExecution/completeExecution/{userId}", handler.CompleteEncounter).Methods("GET")
+	router.HandleFunc("/encounterExecution/create", handler.Create).Methods("POST")
+	router.HandleFunc("/encounterExecution/update/{id}", handler.Update).Methods("PUT")
+
 	router.PathPrefix("/").Handler(http.FileServer(http.Dir("./static")))
 	println("Server starting")
 	log.Fatal(http.ListenAndServe(":4000", router))
@@ -62,9 +65,14 @@ func main() {
 		print("FAILED TO CONNECT TO DB")
 		return
 	}
+
 	repo := &repo.EncounterRepository{DatabaseConnection: database}
 	service := &service.EncounterService{EncounterRepo: repo}
 	handler := &handler.EncounterHandler{EncounterService: service}
 
-	startEncounterServer(handler)
+	encounterExecutionRepo := &repo.EncounterExecutionRepository{DatabaseConnection: database}
+	encounterExecutionService := &service.EncounterExecutionService{EncounterExecutionRepo: encounterExecutionRepo}
+	encounterExecutionHandler := &handler.EncounterExecutionHandler{EncounterExecutionService: encounterExecutionService}
+
+	startServer(handler, encounterExecutionHandler)
 }
