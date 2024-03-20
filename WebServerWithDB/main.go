@@ -46,6 +46,8 @@ func startEncounterServer(handler *handler.EncounterHandler) {
 
 	router.HandleFunc("/encounters/getSocialEncounterId/{baseEncounterId}", handler.GetSocialEncounterId).Methods("GET")
 	router.HandleFunc("/encounters/getHiddenLocationEncounterId/{baseEncounterId}", handler.GetHiddenLocationEncounterId).Methods("GET")
+	
+	router.HandleFunc("/encounters/getHiddenLocationEncounter/{encounterId}", handler.GetHiddenLocationEncounterByEncounterId).Methods("GET")
 
 	router.HandleFunc("/encounters/deleteEncounter/{baseEncounterId}", handler.DeleteEncounter).Methods("DELETE")
 	router.HandleFunc("/encounters/deleteSocialEncounter/{socialEncounterId}", handler.DeleteSocialEncounter).Methods("DELETE")

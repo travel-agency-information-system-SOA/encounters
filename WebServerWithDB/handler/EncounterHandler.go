@@ -350,3 +350,37 @@ func (handler *EncounterHandler) DeleteEncounter(writer http.ResponseWriter, req
     // Ako je brisanje uspešno, vraćamo status 204 No Content
     writer.WriteHeader(http.StatusNoContent)
 }
+
+// GetHiddenLocationEncounterByEncounterId handles the GET request for getting a hidden location encounter by encounter ID
+func (handler *EncounterHandler) GetHiddenLocationEncounterByEncounterId(w http.ResponseWriter, r *http.Request) {
+    // Extract the encounterId from the URL parameters
+    vars := mux.Vars(r)
+    encounterIdStr := vars["encounterId"]
+
+    // Convert encounterIdStr to int
+    encounterId, err := strconv.Atoi(encounterIdStr)
+    if err != nil {
+        http.Error(w, "Invalid encounterId", http.StatusBadRequest)
+        return
+    }
+
+    // Call the method from the service package to retrieve the hidden location encounter by encounter ID
+    hiddenLocationEncounter, err := handler.EncounterService.GetHiddenLocationEncounterByEncounterId(encounterId)
+    if err != nil {
+        http.Error(w, "Internal server error", http.StatusInternalServerError)
+        return
+    }
+
+    // Convert the response to JSON
+    responseJSON, err := json.Marshal(hiddenLocationEncounter)
+    if err != nil {
+        http.Error(w, "Internal server error", http.StatusInternalServerError)
+        return
+    }
+
+    // Set response headers
+    w.Header().Set("Content-Type", "application/json")
+
+    // Write the JSON response
+    w.Write(responseJSON)
+}

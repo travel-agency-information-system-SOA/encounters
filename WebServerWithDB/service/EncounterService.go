@@ -175,3 +175,14 @@ func (s *EncounterService) DeleteEncounter(baseEncounterID int) error {
     }
     return nil
 }
+
+func (s *EncounterService) GetHiddenLocationEncounterByEncounterId(encounterId int) (*model.HiddenLocationEncounter, error) {
+    // Call the repository method to fetch the hidden location encounter by encounter ID
+    hiddenLocationEncounter, err := s.EncounterRepo.GetHiddenLocationEncounterByEncounterId(encounterId)
+    if err != nil {
+        // If there's an error, return nil and the error
+        return nil, err
+    }
+
+    return hiddenLocationEncounter, nil
+}

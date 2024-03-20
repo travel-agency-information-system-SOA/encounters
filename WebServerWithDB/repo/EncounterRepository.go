@@ -135,7 +135,7 @@ func (r *EncounterRepository) GetSocialEncounterId(baseEncounterID int) (int, er
     var socialEncounterID int
 
     // Izvršavanje upita za dobavljanje ID-a društvenog susreta
-    result := r.DatabaseConnection.Model(&model.SocialEncounter{}).Select("Id").Where("encounter_id = ?", baseEncounterID).First(&socialEncounterID)
+    result := r.DatabaseConnection.Model(&model.SocialEncounter{}).Select("id").Where("encounter_id = ?", baseEncounterID).First(&socialEncounterID)
     if result.Error != nil {
         // Provera greške prilikom izvršavanja upita
         if errors.Is(result.Error, gorm.ErrRecordNotFound) {
@@ -154,7 +154,7 @@ func (r *EncounterRepository) GetHiddenLocationEncounterId(baseEncounterID int) 
     var hiddenLocationEncounterID int
 
     // Izvršavanje upita za dobavljanje ID-a društvenog susreta
-    result := r.DatabaseConnection.Model(&model.HiddenLocationEncounter{}).Select("Id").Where("encounter_id = ?", baseEncounterID).First(&hiddenLocationEncounterID)
+    result := r.DatabaseConnection.Model(&model.HiddenLocationEncounter{}).Select("id").Where("encounter_id = ?", baseEncounterID).First(&hiddenLocationEncounterID)
     if result.Error != nil {
         // Provera greške prilikom izvršavanja upita
         if errors.Is(result.Error, gorm.ErrRecordNotFound) {
@@ -202,4 +202,23 @@ func (r *EncounterRepository) DeleteEncounter(baseEncounterID int) error {
         return result.Error
     }
     return nil
+}
+
+func (r *EncounterRepository) GetHiddenLocationEncounterByEncounterId(baseEncounterID int) (*model.HiddenLocationEncounter, error) {
+    var hiddenLocationEncounter model.HiddenLocationEncounter
+
+    // Execute the query to fetch the hidden location encounter by baseEncounterID
+    result := r.DatabaseConnection.Model(&model.HiddenLocationEncounter{}).Where("encounter_id = ?", baseEncounterID).First(&hiddenLocationEncounter)
+    if result.Error != nil {
+        // Check for error while executing the query
+        if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+            // If the record does not exist, return nil and nil error
+            return nil, nil
+        }
+        // If there's another error, return nil and the error
+        return nil, result.Error
+    }
+
+    // If no error, return the hidden location encounter object
+    return &hiddenLocationEncounter, nil
 }
