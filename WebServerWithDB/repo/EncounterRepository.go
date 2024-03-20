@@ -222,3 +222,22 @@ func (r *EncounterRepository) GetHiddenLocationEncounterByEncounterId(baseEncoun
     // If no error, return the hidden location encounter object
     return &hiddenLocationEncounter, nil
 }
+
+func (r *EncounterRepository) GetEncounterById(encounterId int) (*model.Encounter, error) {
+    var encounter model.Encounter
+
+    // Execute the query to fetch the hidden location encounter by baseEncounterID
+    result := r.DatabaseConnection.Model(&model.Encounter{}).Where("id = ?", encounterId).First(&encounter)
+    if result.Error != nil {
+        // Check for error while executing the query
+        if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+            // If the record does not exist, return nil and nil error
+            return nil, nil
+        }
+        // If there's another error, return nil and the error
+        return nil, result.Error
+    }
+
+    // If no error, return the hidden location encounter object
+    return &encounter, nil
+}

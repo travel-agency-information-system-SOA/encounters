@@ -384,3 +384,36 @@ func (handler *EncounterHandler) GetHiddenLocationEncounterByEncounterId(w http.
     // Write the JSON response
     w.Write(responseJSON)
 }
+
+func (handler *EncounterHandler) GetEncounterById(w http.ResponseWriter, r *http.Request) {
+    // Extract the encounterId from the URL parameters
+    vars := mux.Vars(r)
+    encounterIdStr := vars["encounterId"]
+
+    // Convert encounterIdStr to int
+    encounterId, err := strconv.Atoi(encounterIdStr)
+    if err != nil {
+        http.Error(w, "Invalid encounterId", http.StatusBadRequest)
+        return
+    }
+
+    // Call the method from the service package to retrieve the hidden location encounter by encounter ID
+    encounter, err := handler.EncounterService.GetEncounterById(encounterId)
+    if err != nil {
+        http.Error(w, "Internal server error", http.StatusInternalServerError)
+        return
+    }
+
+    // Convert the response to JSON
+    responseJSON, err := json.Marshal(encounter)
+    if err != nil {
+        http.Error(w, "Internal server error", http.StatusInternalServerError)
+        return
+    }
+
+    // Set response headers
+    w.Header().Set("Content-Type", "application/json")
+
+    // Write the JSON response
+    w.Write(responseJSON)
+}

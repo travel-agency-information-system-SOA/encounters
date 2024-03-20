@@ -186,3 +186,14 @@ func (s *EncounterService) GetHiddenLocationEncounterByEncounterId(encounterId i
 
     return hiddenLocationEncounter, nil
 }
+
+func (s *EncounterService) GetEncounterById(encounterId int) (*model.Encounter, error) {
+    // Call the repository method to fetch the hidden location encounter by encounter ID
+    encounter, err := s.EncounterRepo.GetEncounterById(encounterId)
+    if err != nil {
+        // If there's an error, return nil and the error
+        return nil, err
+    }
+
+    return encounter, nil
+}
