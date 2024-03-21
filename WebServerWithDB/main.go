@@ -14,6 +14,8 @@ import (
 	"gorm.io/gorm"
 )
 
+//nil - pokazivac ne pokazuje ni na sta
+
 func initDB() *gorm.DB {
 	dsn := "user=postgres password=super dbname=explorer-v1 host=localhost port=5432 sslmode=disable search_path=encounters"
 	database, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
@@ -27,7 +29,7 @@ func initDB() *gorm.DB {
 }
 
 func startServer(handlerEnc *handler.EncounterHandler, handlerExec *handler.EncounterExecutionHandler) {
-	router := mux.NewRouter().StrictSlash(true)
+	router := mux.NewRouter().StrictSlash(true) //za rukovanje http zahtevima i definisanje ruta
 
 	//za zahteve iz c# proj ka ovamo
 	router.HandleFunc("/encounters/create", handlerEnc.Create).Methods("POST")

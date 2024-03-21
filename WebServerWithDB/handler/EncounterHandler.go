@@ -385,35 +385,42 @@ func (handler *EncounterHandler) GetHiddenLocationEncounterByEncounterId(w http.
     w.Write(responseJSON)
 }
 
+//ODAVDE IDI DALJE U SERVISE I REPO
 func (handler *EncounterHandler) GetEncounterById(w http.ResponseWriter, r *http.Request) {
-    // Extract the encounterId from the URL parameters
-    vars := mux.Vars(r)
-    encounterIdStr := vars["encounterId"]
+	//Ekstrahovanje parametara iz URL-a ili tela zahteva, ako je potrebno
+    //Pozivanje odgovarajuće funkcionalnosti iz servisnog sloja ili repozitorijuma kako bi se dobio traženi susret
+	//Pretvaranje dobijenih podataka u odgovarajući format (npr. JSON) kako bi se poslali nazad klijentu
+	//Slanje odgovora nazad klijentu putem http.ResponseWriter
 
-    // Convert encounterIdStr to int
+    //mux: izvlacenje varijabli iz url parametra
+	//encounterId - parametar putanje
+	vars := mux.Vars(r)
+    encounterIdStr := vars["encounterId"] //izvucena vrednost se cuva kao string
+
+    //konvertovanje stringa u int
     encounterId, err := strconv.Atoi(encounterIdStr)
     if err != nil {
         http.Error(w, "Invalid encounterId", http.StatusBadRequest)
         return
     }
 
-    // Call the method from the service package to retrieve the hidden location encounter by encounter ID
+	//poziv metode servisa da se dobavi encounter na osnovu encounterId
     encounter, err := handler.EncounterService.GetEncounterById(encounterId)
     if err != nil {
         http.Error(w, "Internal server error", http.StatusInternalServerError)
         return
     }
 
-    // Convert the response to JSON
+    //konvertovanje odgovora (encounter) u json - marshal
     responseJSON, err := json.Marshal(encounter)
     if err != nil {
         http.Error(w, "Internal server error", http.StatusInternalServerError)
         return
     }
 
-    // Set response headers
+    //postavlja se Content-Type zaglavlje HTTP odgovora na application/json, što označava da je odgovor JSON
     w.Header().Set("Content-Type", "application/json")
 
-    // Write the JSON response
+    //json odgovor se pise u http.ResponseWriter sto ce se proslediti kao odgovor
     w.Write(responseJSON)
 }

@@ -187,11 +187,12 @@ func (s *EncounterService) GetHiddenLocationEncounterByEncounterId(encounterId i
     return hiddenLocationEncounter, nil
 }
 
+//(s *EncounterService) - prijemnik funkcije, na kom tipu (objektu) je funkcija definisana
+//(encounterId int) - parametri funkcije
+//(*model.Encounter, error) - povratni tipovi funkcije
 func (s *EncounterService) GetEncounterById(encounterId int) (*model.Encounter, error) {
-    // Call the repository method to fetch the hidden location encounter by encounter ID
     encounter, err := s.EncounterRepo.GetEncounterById(encounterId)
     if err != nil {
-        // If there's an error, return nil and the error
         return nil, err
     }
 
