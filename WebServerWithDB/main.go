@@ -17,7 +17,7 @@ import (
 //nil - pokazivac ne pokazuje ni na sta
 
 func initDB() *gorm.DB {
-	dsn := "user=postgres password=super dbname=explorer-v1 host=localhost port=5432 sslmode=disable search_path=encounters"
+	dsn := "user=postgres password=super dbname=explorer host=database port=5432 sslmode=disable search_path=encounters"
 	database, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
 		print(err)
@@ -35,7 +35,7 @@ func startServer(handlerEnc *handler.EncounterHandler, handlerExec *handler.Enco
 	router.HandleFunc("/encounters/create", handlerEnc.Create).Methods("POST")
 	router.HandleFunc("/encounters/createSocialEncounter", handlerEnc.CreateSocialEncounter).Methods("POST")
 	router.HandleFunc("/encounters/createHiddenLocationEncounter", handlerEnc.CreateHiddenLocationEncounter).Methods("POST")
-	
+
 	router.HandleFunc("/encounters/update", handlerEnc.Update).Methods("PUT")
 	router.HandleFunc("/encounters/updateHiddenLocationEncounter", handlerEnc.UpdateHiddenLocationEncounter).Methods("PUT")
 	router.HandleFunc("/encounters/updateSocialEncounter", handlerEnc.UpdateSocialEncounter).Methods("PUT")
