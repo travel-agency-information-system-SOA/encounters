@@ -1,6 +1,8 @@
 package model
 
 import (
+	"encoding/json"
+	"io"
 )
 
 type EncounterStatus int
@@ -20,13 +22,30 @@ const (
 )
 
 type Encounter struct {
-	ID                  int                  `json:"id" gorm:"column:id;primaryKey;autoIncrement"`
-	Name                string               `json:"name" gorm:"not null;type:string"`
-	Description         string               `json:"description"`
-	XpPoints            int                  `json:"xpPoints"`
-	Status              string               `json:"status"`
-	Type                string               `json:"type"`
-	Latitude            float64              `json:"latitude"`
-	Longitude           float64              `json:"longitude"`
-	ShouldBeApproved    bool                 `json:"shouldBeApproved"`
+	Id               int64   `bson:"id,omitempty" json:"id"`
+	Name             string  `bson:"name" json:"name"`
+	Description      string  `bson:"description,omitempty" json:"description"`
+	XpPoints         int     `bson:"xpPoints" json:"xpPoints"`
+	Status           string  `bson:"status" json:"status"`
+	Type             string  `bson:"type" json:"type"`
+	Latitude         float64 `bson:"latitude" json:"latitude"`
+	Longitude        float64 `bson:"longitude" json:"longitude"`
+	ShouldBeApproved bool    `bson:"shouldBeApproved" json:"shouldBeApproved"`
+}
+
+type Encounters []*Encounter
+
+func (ens *Encounters) ToJSON(w io.Writer) error {
+	e := json.NewEncoder(w)
+	return e.Encode(ens)
+}
+
+func (en *Encounter) ToJSON(w io.Writer) error {
+	e := json.NewEncoder(w)
+	return e.Encode(en)
+}
+
+func (en *Encounter) FromJSON(r io.Reader) error {
+	d := json.NewDecoder(r)
+	return d.Decode(en)
 }

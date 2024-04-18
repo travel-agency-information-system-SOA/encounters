@@ -6,12 +6,17 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
-	"strconv"
+
 	"github.com/gorilla/mux"
 )
 
 type EncounterHandler struct {
 	EncounterService *service.EncounterService
+	logger           *log.Logger
+}
+
+func NewEncounterHandler(encounterService *service.EncounterService, log *log.Logger) *EncounterHandler {
+	return &EncounterHandler{encounterService, log}
 }
 
 func (handler *EncounterHandler) Get(writer http.ResponseWriter, req *http.Request) {
@@ -27,7 +32,7 @@ func (handler *EncounterHandler) Get(writer http.ResponseWriter, req *http.Reque
 	// json.NewEncoder(writer).Encode(student)
 }
 
-//OVDE IDU METODE IZ KONTROLERA
+// OVDE IDU METODE IZ KONTROLERA
 func (handler *EncounterHandler) Create(writer http.ResponseWriter, req *http.Request) {
 	//ResponseWriter - pisanje odgovora
 	//Request - dolazni zahtev
@@ -50,6 +55,32 @@ func (handler *EncounterHandler) Create(writer http.ResponseWriter, req *http.Re
 	json.NewEncoder(writer).Encode(encounter) // dodala sam
 }
 
+func (h *EncounterHandler) GetAllEncounters(w http.ResponseWriter, r *http.Request) {
+	// Ovde bi trebalo da dobijemo sve susrete iz baze podataka
+	encounters, err := h.EncounterService.GetAllEncounters()
+	if err != nil {
+		// Ukoliko dođe do greške prilikom dobijanja susreta, vraćamo odgovarajući status i poruku o grešci
+		http.Error(w, "Error getting encounters", http.StatusInternalServerError)
+		return
+	}
+
+	// Konvertujemo susrete u JSON format
+	encountersJSON, err := json.Marshal(encounters)
+	if err != nil {
+		// Ukoliko dođe do greške prilikom konvertovanja u JSON, vraćamo odgovarajući status i poruku o grešci
+		http.Error(w, "Error converting encounters to JSON", http.StatusInternalServerError)
+		return
+	}
+
+	// Postavljamo Content-Type zaglavlje na application/json
+	w.Header().Set("Content-Type", "application/json")
+
+	// Šaljemo odgovor sa susretima u JSON formatu
+	w.WriteHeader(http.StatusOK)
+	w.Write(encountersJSON)
+}
+
+/*
 func (handler *EncounterHandler) CreateSocialEncounter(writer http.ResponseWriter, req *http.Request) {
 	//ResponseWriter - pisanje odgovora
 	//Request - dolazni zahtev
@@ -424,3 +455,4 @@ func (handler *EncounterHandler) GetEncounterById(w http.ResponseWriter, r *http
     //json odgovor se pise u http.ResponseWriter sto ce se proslediti kao odgovor
     w.Write(responseJSON)
 }
+*/

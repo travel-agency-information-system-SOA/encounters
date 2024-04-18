@@ -3,13 +3,14 @@ package service
 import (
 	"database-example/model"
 	"database-example/repo"
-	"errors"
 )
-
-var ErrEncounterNotFound = errors.New("encounter not found")
 
 type EncounterService struct {
 	EncounterRepo *repo.EncounterRepository
+}
+
+func NewEncounterService(re *repo.EncounterRepository) *EncounterService {
+	return &EncounterService{re}
 }
 
 func (service *EncounterService) Create(encounter *model.Encounter) error {
@@ -20,6 +21,18 @@ func (service *EncounterService) Create(encounter *model.Encounter) error {
 	return nil
 }
 
+func (s *EncounterService) GetAllEncounters() ([]*model.Encounter, error) {
+	// Poziv baze podataka ili nekog drugog skladišta podataka da dobijemo sve susrete
+	encounters, err := s.EncounterRepo.GetAllEncounters()
+	if err != nil {
+		// Ukoliko dođe do greške, vraćamo praznu listu i grešku
+		return nil, err
+	}
+
+	return encounters, nil
+}
+
+/*
 func (service *EncounterService) CreateSocialEncounter(encounter *model.SocialEncounter) error {
 	err := service.EncounterRepo.CreateSocialEncounter(encounter)
 	if err != nil {
@@ -198,3 +211,4 @@ func (s *EncounterService) GetEncounterById(encounterId int) (*model.Encounter, 
 
     return encounter, nil
 }
+*/
