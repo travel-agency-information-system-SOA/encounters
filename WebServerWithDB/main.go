@@ -97,9 +97,9 @@ func main() {
 
 	store.Ping()
 
-	encounterRepo, err := repo.New(timeoutContext, logger)
+	//encounterRepo, err := repo.New(timeoutContext, logger)
 
-	encounterService := service.NewEncounterService(encounterRepo)
+	encounterService := service.NewEncounterService(store)
 
 	encounterHandler := handler.NewEncounterHandler(encounterService, logger)
 

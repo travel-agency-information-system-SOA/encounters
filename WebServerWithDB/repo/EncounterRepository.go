@@ -47,18 +47,24 @@ func New(ctx context.Context, logger *log.Logger) (*EncounterRepository, error) 
 	dbURI := os.Getenv("MONGO_DB_URI")
 	dbName := "encounters" // Naziv nove baze koju želite da kreirate
 
-	client, err := mongo.NewClient(options.Client().ApplyURI(dbURI))
+	clientOptions := options.Client().ApplyURI("mongodb://" + dbURI + "/?connect=direct")
+
+	client, err := mongo.Connect(ctx, clientOptions)
+
 	if err != nil {
-		return nil, err
+		log.Fatal(err)
 	}
 
-	err = client.Connect(ctx)
 	if err != nil {
-		return nil, err
+		log.Fatal(err)
 	}
+	fmt.Println("Connected to MongoDB!")
+
+	// Check the connection
+	err = client.Ping(context.TODO(), nil)
 
 	// Kreiranje nove baze podataka
-	err = client.Database(dbName).CreateCollection(ctx, "encounters_collection")
+	client.Database(dbName).CreateCollection(ctx, "encounters_collection")
 	if err != nil {
 		return nil, err
 	}
@@ -98,8 +104,8 @@ func (er *EncounterRepository) Ping() {
 }
 
 func (er *EncounterRepository) getCollection() *mongo.Collection {
-	encounterDatabase := er.cli.Database("mongoDemo")
-	encoutersCollection := encounterDatabase.Collection("encounters")
+	encounterDatabase := er.cli.Database("encounters")
+	encoutersCollection := encounterDatabase.Collection("encounters_collection")
 	return encoutersCollection
 }
 
