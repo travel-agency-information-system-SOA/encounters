@@ -80,7 +80,6 @@ func (h *EncounterHandler) GetAllEncounters(w http.ResponseWriter, r *http.Reque
 	w.Write(encountersJSON)
 }
 
-/*
 func (handler *EncounterHandler) CreateSocialEncounter(writer http.ResponseWriter, req *http.Request) {
 	//ResponseWriter - pisanje odgovora
 	//Request - dolazni zahtev
@@ -124,6 +123,8 @@ func (handler *EncounterHandler) CreateHiddenLocationEncounter(writer http.Respo
 	writer.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(writer).Encode(encounter) // dodala sam
 }
+
+/*
 
 func (h *EncounterHandler) GetAllEncounters(w http.ResponseWriter, r *http.Request) {
     // Ovde bi trebalo da dobijemo sve susrete iz baze podataka

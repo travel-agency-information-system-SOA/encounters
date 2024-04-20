@@ -32,7 +32,6 @@ func (s *EncounterService) GetAllEncounters() ([]*model.Encounter, error) {
 	return encounters, nil
 }
 
-/*
 func (service *EncounterService) CreateSocialEncounter(encounter *model.SocialEncounter) error {
 	err := service.EncounterRepo.CreateSocialEncounter(encounter)
 	if err != nil {
@@ -48,6 +47,8 @@ func (service *EncounterService) CreateHiddenLocationEncounter(encounter *model.
 	}
 	return nil
 }
+
+/*
 
 func (s *EncounterService) GetAllEncounters() ([]*model.Encounter, error) {
     // Poziv baze podataka ili nekog drugog skladišta podataka da dobijemo sve susrete

@@ -22,7 +22,7 @@ const (
 )
 
 type Encounter struct {
-	Id               int64   `bson:"id,omitempty" json:"id"`
+	Id               int64   `bson:"_id,omitempty" json:"id"`
 	Name             string  `bson:"name" json:"name"`
 	Description      string  `bson:"description,omitempty" json:"description"`
 	XpPoints         int     `bson:"xpPoints" json:"xpPoints"`

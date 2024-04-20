@@ -37,11 +37,11 @@ func startServer(handlerEnc *handler.EncounterHandler, handlerExec *handler.Enco
 	router := mux.NewRouter().StrictSlash(true) //za rukovanje http zahtevima i definisanje ruta
 
 	//za zahteve iz c# proj ka ovamo
-	router.HandleFunc("/encounters/create", handlerEnc.Create).Methods("POST")
-	router.HandleFunc("/encounters", handlerEnc.GetAllEncounters).Methods("GET")
+		router.HandleFunc("/encounters/create", handlerEnc.Create).Methods("POST") //prevedeno!!!
+		router.HandleFunc("/encounters", handlerEnc.GetAllEncounters).Methods("GET") //prevedeno!!!
 
-		router.HandleFunc("/encounters/createSocialEncounter", handlerEnc.CreateSocialEncounter).Methods("POST")
-		router.HandleFunc("/encounters/createHiddenLocationEncounter", handlerEnc.CreateHiddenLocationEncounter).Methods("POST")
+		router.HandleFunc("/encounters/createSocialEncounter", handlerEnc.CreateSocialEncounter).Methods("POST") //prevedeno!!!
+		router.HandleFunc("/encounters/createHiddenLocationEncounter", handlerEnc.CreateHiddenLocationEncounter).Methods("POST") //prevedeno!!!
 
 		router.HandleFunc("/encounters/update", handlerEnc.Update).Methods("PUT")
 		router.HandleFunc("/encounters/updateHiddenLocationEncounter", handlerEnc.UpdateHiddenLocationEncounter).Methods("PUT")
@@ -97,8 +97,6 @@ func main() {
 
 	store.Ping()
 
-	//encounterRepo, err := repo.New(timeoutContext, logger)
-
 	encounterService := service.NewEncounterService(store)
 
 	encounterHandler := handler.NewEncounterHandler(encounterService, logger)
@@ -107,23 +105,9 @@ func main() {
 
 	router.HandleFunc("/encounters/create", encounterHandler.Create).Methods("POST")
 	router.HandleFunc("/encounters", encounterHandler.GetAllEncounters).Methods("GET")
-	/*
-		router.HandleFunc("/encounters/misc", encounterHandler.CreateMiscEncounter).Methods("POST")
-		router.HandleFunc("/encounters/social", encounterHandler.CreateSocialEncounter).Methods("POST")
-		router.HandleFunc("/encounters/hidden", encounterHandler.CreateHiddenLocationEncounter).Methods("POST")
-		router.HandleFunc("/encounters/isInRange/{id}/{long}/{lat}", encounterHandler.IsUserInCompletitionRange).Methods("GET")
-		router.HandleFunc("/encounters/{range}/{long}/{lat}", encounterHandler.FindAllInRangeOf).Methods("GET")
-		router.HandleFunc("/encounters", encounterHandler.FindAll).Methods("GET")
-		router.HandleFunc("/encounters/hidden/{id}", encounterHandler.FindHiddenLocationEncounterById).Methods("GET")
-		router.HandleFunc("/encounters/doneByUser/{id}", encounterHandler.FindAllDoneByUser).Methods("GET")
-		router.HandleFunc("/encounters/instance/{id}/{encounterId}/encounter", encounterInstanceHandler.FindEncounterInstance).Methods("GET")
-		router.HandleFunc("/encounters/touristProgress/{id}", touristProgressHandler.FindTouristProgressByTouristId).Methods("GET")
-		router.HandleFunc("/encounters/complete/{userid}/{encounterId}/misc", encounterHandler.CompleteMiscEncounter).Methods("GET")
-		router.HandleFunc("/encounters/activate/{id}", encounterHandler.ActivateEncounter).Methods("POST")
-		router.HandleFunc("/encounters/complete/{id}", encounterHandler.CompleteHiddenLocationEncounter).Methods("POST")
-		router.HandleFunc("/encounters/complete/{encounterId}/social", encounterHandler.CompleteSocialEncounter).Methods("POST")
+	router.HandleFunc("/encounters/createSocialEncounter", encounterHandler.CreateSocialEncounter).Methods("POST")
+	router.HandleFunc("/encounters/createHiddenLocationEncounter", encounterHandler.CreateHiddenLocationEncounter).Methods("POST")
 
-	*/
 	cors := gorillaHandlers.CORS(gorillaHandlers.AllowedOrigins([]string{"*"}))
 
 	//Initialize the server
