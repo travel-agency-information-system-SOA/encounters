@@ -3,15 +3,17 @@ package model
 import (
 	"encoding/json"
 	"io"
+
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type HiddenLocationEncounter struct {
-	Id               int64   `bson:"_id,omitempty" json:"id"`
-	ImageURL         string  `bson:"imageURL" json:"imageURL"`
-	ImageLatitude    float64 `bson:"imageLatitude" json:"imageLatitude"`
-	ImageLongitude   float64 `bson:"imageLongitude" json:"imageLongitude"`
-	DistanceTreshold float64 `bson:"distanceTreshold" json:"distanceTreshold"`
-	EncounterId      int64   `bson:"encounterId, omitempty" json:"encounterId"`
+	Id               primitive.ObjectID `bson:"_id,omitempty" json:"id"`
+	ImageURL         string             `bson:"imageURL" json:"imageURL"`
+	ImageLatitude    float64            `bson:"imageLatitude" json:"imageLatitude"`
+	ImageLongitude   float64            `bson:"imageLongitude" json:"imageLongitude"`
+	DistanceTreshold float64            `bson:"distanceTreshold" json:"distanceTreshold"`
+	Encounter        Encounter          `bson:"encounter,omitempty" json:"encounter"`
 }
 
 type HiddenLocationEncounters []*HiddenLocationEncounter

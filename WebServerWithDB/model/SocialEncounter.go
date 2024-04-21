@@ -3,14 +3,16 @@ package model
 import (
 	"encoding/json"
 	"io"
+
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type SocialEncounter struct {
-	Id                            int64   `bson:"_id,omitempty" json:"id"`
-	EncounterId                   int64   `bson:"encounterId,omitempty" json:"encounterId"`
-	TouristsRequiredForCompletion int     `bson:"touristsRequiredForCompletion" json:"touristsRequiredForCompletion"`
-	DistanceTreshold              float64 `bson:"distanceTreshold" json:"distanceTreshold"`
-	TouristIDs                    []int   `bson:"touristIDs,omitempty" json:"touristIDs"`
+	Id                            primitive.ObjectID `bson:"_id,omitempty" json:"id"`
+	Encounter                     Encounter          `bson:"encounter,omitempty" json:"encounter"`
+	TouristsRequiredForCompletion int                `bson:"touristsRequiredForCompletion" json:"touristsRequiredForCompletion"`
+	DistanceTreshold              float64            `bson:"distanceTreshold" json:"distanceTreshold"`
+	TouristIDs                    []int              `bson:"touristIDs,omitempty" json:"touristIDs"`
 }
 
 type SocialEncounters []*SocialEncounter

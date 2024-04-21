@@ -3,6 +3,8 @@ package model
 import (
 	"encoding/json"
 	"io"
+
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type EncounterStatus int
@@ -22,15 +24,15 @@ const (
 )
 
 type Encounter struct {
-	Id               int64   `bson:"_id,omitempty" json:"id"`
-	Name             string  `bson:"name" json:"name"`
-	Description      string  `bson:"description,omitempty" json:"description"`
-	XpPoints         int     `bson:"xpPoints" json:"xpPoints"`
-	Status           string  `bson:"status" json:"status"`
-	Type             string  `bson:"type" json:"type"`
-	Latitude         float64 `bson:"latitude" json:"latitude"`
-	Longitude        float64 `bson:"longitude" json:"longitude"`
-	ShouldBeApproved bool    `bson:"shouldBeApproved" json:"shouldBeApproved"`
+	Id               primitive.ObjectID `bson:"_id,omitempty" json:"id"`
+	Name             string             `bson:"name" json:"name"`
+	Description      string             `bson:"description,omitempty" json:"description"`
+	XpPoints         int                `bson:"xpPoints" json:"xpPoints"`
+	Status           string             `bson:"status" json:"status"`
+	Type             string             `bson:"type" json:"type"`
+	Latitude         float64            `bson:"latitude" json:"latitude"`
+	Longitude        float64            `bson:"longitude" json:"longitude"`
+	ShouldBeApproved bool               `bson:"shouldBeApproved" json:"shouldBeApproved"`
 }
 
 type Encounters []*Encounter
