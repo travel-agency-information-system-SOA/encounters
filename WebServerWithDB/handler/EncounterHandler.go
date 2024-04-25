@@ -153,53 +153,53 @@ func (h *EncounterHandler) GetAllEncounters(w http.ResponseWriter, r *http.Reque
 */
 
 func (h *EncounterHandler) GetAllSocialEncounters(w http.ResponseWriter, r *http.Request) {
-    // Ovde bi trebalo da dobijemo sve susrete iz baze podataka
-    encounters, err := h.EncounterService.GetAllSocialEncounters()
-    if err != nil {
-        // Ukoliko dođe do greške prilikom dobijanja susreta, vraćamo odgovarajući status i poruku o grešci
-        http.Error(w, "Error getting encounters", http.StatusInternalServerError)
-        return
-    }
+	// Ovde bi trebalo da dobijemo sve susrete iz baze podataka
+	encounters, err := h.EncounterService.GetAllSocialEncounters()
+	if err != nil {
+		// Ukoliko dođe do greške prilikom dobijanja susreta, vraćamo odgovarajući status i poruku o grešci
+		http.Error(w, "Error getting encounters", http.StatusInternalServerError)
+		return
+	}
 
-    // Konvertujemo susrete u JSON format
-    encountersJSON, err := json.Marshal(encounters)
-    if err != nil {
-        // Ukoliko dođe do greške prilikom konvertovanja u JSON, vraćamo odgovarajući status i poruku o grešci
-        http.Error(w, "Error converting encounters to JSON", http.StatusInternalServerError)
-        return
-    }
+	// Konvertujemo susrete u JSON format
+	encountersJSON, err := json.Marshal(encounters)
+	if err != nil {
+		// Ukoliko dođe do greške prilikom konvertovanja u JSON, vraćamo odgovarajući status i poruku o grešci
+		http.Error(w, "Error converting encounters to JSON", http.StatusInternalServerError)
+		return
+	}
 
-    // Postavljamo Content-Type zaglavlje na application/json
-    w.Header().Set("Content-Type", "application/json")
+	// Postavljamo Content-Type zaglavlje na application/json
+	w.Header().Set("Content-Type", "application/json")
 
-    // Šaljemo odgovor sa susretima u JSON formatu
-    w.WriteHeader(http.StatusOK)
-    w.Write(encountersJSON)
+	// Šaljemo odgovor sa susretima u JSON formatu
+	w.WriteHeader(http.StatusOK)
+	w.Write(encountersJSON)
 }
 
 func (h *EncounterHandler) GetAllHiddenLocationEncounters(w http.ResponseWriter, r *http.Request) {
-    // Ovde bi trebalo da dobijemo sve susrete iz baze podataka
-    encounters, err := h.EncounterService.GetAllHiddenLocationEncounters()
-    if err != nil {
-        // Ukoliko dođe do greške prilikom dobijanja susreta, vraćamo odgovarajući status i poruku o grešci
-        http.Error(w, "Error getting encounters", http.StatusInternalServerError)
-        return
-    }
+	// Ovde bi trebalo da dobijemo sve susrete iz baze podataka
+	encounters, err := h.EncounterService.GetAllHiddenLocationEncounters()
+	if err != nil {
+		// Ukoliko dođe do greške prilikom dobijanja susreta, vraćamo odgovarajući status i poruku o grešci
+		http.Error(w, "Error getting encounters", http.StatusInternalServerError)
+		return
+	}
 
-    // Konvertujemo susrete u JSON format
-    encountersJSON, err := json.Marshal(encounters)
-    if err != nil {
-        // Ukoliko dođe do greške prilikom konvertovanja u JSON, vraćamo odgovarajući status i poruku o grešci
-        http.Error(w, "Error converting encounters to JSON", http.StatusInternalServerError)
-        return
-    }
+	// Konvertujemo susrete u JSON format
+	encountersJSON, err := json.Marshal(encounters)
+	if err != nil {
+		// Ukoliko dođe do greške prilikom konvertovanja u JSON, vraćamo odgovarajući status i poruku o grešci
+		http.Error(w, "Error converting encounters to JSON", http.StatusInternalServerError)
+		return
+	}
 
-    // Postavljamo Content-Type zaglavlje na application/json
-    w.Header().Set("Content-Type", "application/json")
+	// Postavljamo Content-Type zaglavlje na application/json
+	w.Header().Set("Content-Type", "application/json")
 
-    // Šaljemo odgovor sa susretima u JSON formatu
-    w.WriteHeader(http.StatusOK)
-    w.Write(encountersJSON)
+	// Šaljemo odgovor sa susretima u JSON formatu
+	w.WriteHeader(http.StatusOK)
+	w.Write(encountersJSON)
 }
 
 func (handler *EncounterHandler) Update(writer http.ResponseWriter, req *http.Request) {
@@ -319,63 +319,63 @@ func (handler *EncounterHandler) GetHiddenLocationEncounterId(writer http.Respon
 }
 
 func (handler *EncounterHandler) DeleteSocialEncounter(writer http.ResponseWriter, req *http.Request) {
-    // Dobijanje ID-a socijalnog susreta iz URL putanje
+	// Dobijanje ID-a socijalnog susreta iz URL putanje
 	vars := mux.Vars(req)
 
 	socialEncounterIDStr := vars["socialEncounterId"]
 
-    // Poziv metode u servisu za brisanje socijalnog susreta
-    err = handler.EncounterService.DeleteSocialEncounter(socialEncounterIDStr)
-    if err != nil {
-        log.Println("Error while deleting the social encounter:", err)
-        http.Error(writer, "Error while deleting the social encounter", http.StatusInternalServerError)
-        return
-    }
+	// Poziv metode u servisu za brisanje socijalnog susreta
+	err := handler.EncounterService.DeleteSocialEncounter(socialEncounterIDStr)
+	if err != nil {
+		log.Println("Error while deleting the social encounter:", err)
+		http.Error(writer, "Error while deleting the social encounter", http.StatusInternalServerError)
+		return
+	}
 
-    // Uspesan odgovor
-    writer.WriteHeader(http.StatusOK)
+	// Uspesan odgovor
+	writer.WriteHeader(http.StatusOK)
 }
 
 func (handler *EncounterHandler) DeleteHiddenLocationEncounter(writer http.ResponseWriter, req *http.Request) {
-    // Dobijanje ID-a skrivenog susreta iz URL putanje
-    vars := mux.Vars(req)
+	// Dobijanje ID-a skrivenog susreta iz URL putanje
+	vars := mux.Vars(req)
 
 	hiddenLocationEncounterIDStr := vars["hiddenLocationEncounterId"]
 
-    // Poziv metode u servisu za brisanje skrivenog susreta
-    err = handler.EncounterService.DeleteHiddenLocationEncounter(hiddenLocationEncounterIDStr)
-    if err != nil {
-        log.Println("Error while deleting the hidden location encounter:", err)
-        http.Error(writer, "Error while deleting the hidden location encounter", http.StatusInternalServerError)
-        return
-    }
+	// Poziv metode u servisu za brisanje skrivenog susreta
+	err := handler.EncounterService.DeleteHiddenLocationEncounter(hiddenLocationEncounterIDStr)
+	if err != nil {
+		log.Println("Error while deleting the hidden location encounter:", err)
+		http.Error(writer, "Error while deleting the hidden location encounter", http.StatusInternalServerError)
+		return
+	}
 
-    // Uspesan odgovor
-    writer.WriteHeader(http.StatusOK)
+	// Uspesan odgovor
+	writer.WriteHeader(http.StatusOK)
 }
 
 func (handler *EncounterHandler) DeleteEncounter(writer http.ResponseWriter, req *http.Request) {
-    // Uzimanje ID-ja susreta iz putanje zahteva
-    vars := mux.Vars(req)
+	// Uzimanje ID-ja susreta iz putanje zahteva
+	vars := mux.Vars(req)
 
 	baseEncounterIDStr := vars["baseEncounterId"]
-    /*baseEncounterID, err := strconv.Atoi(vars["baseEncounterId"])
-    if err != nil {
-        log.Println("Error converting baseEncounterId to int:", err)
-        http.Error(writer, "Invalid baseEncounterId", http.StatusBadRequest)
-        return
-    }*/
+	/*baseEncounterID, err := strconv.Atoi(vars["baseEncounterId"])
+	  if err != nil {
+	      log.Println("Error converting baseEncounterId to int:", err)
+	      http.Error(writer, "Invalid baseEncounterId", http.StatusBadRequest)
+	      return
+	  }*/
 
-    // Pozivanje odgovarajuće funkcije za brisanje susreta iz servisa
-    err = handler.EncounterService.DeleteEncounter(baseEncounterIDStr)
-    if err != nil {
-        log.Println("Error deleting encounter:", err)
-        http.Error(writer, "Error deleting encounter", http.StatusInternalServerError)
-        return
-    }
+	// Pozivanje odgovarajuće funkcije za brisanje susreta iz servisa
+	err := handler.EncounterService.DeleteEncounter(baseEncounterIDStr)
+	if err != nil {
+		log.Println("Error deleting encounter:", err)
+		http.Error(writer, "Error deleting encounter", http.StatusInternalServerError)
+		return
+	}
 
-    // Ako je brisanje uspešno, vraćamo status 204 No Content
-    writer.WriteHeader(http.StatusNoContent)
+	// Ako je brisanje uspešno, vraćamo status 204 No Content
+	writer.WriteHeader(http.StatusNoContent)
 }
 
 /*

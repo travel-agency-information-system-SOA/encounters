@@ -3,12 +3,14 @@ package repo
 import (
 	"context"
 	"database-example/model"
+	"errors"
 	"fmt"
 	"log"
 	"os"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
@@ -183,7 +185,6 @@ func (r *EncounterRepository) GetAllEncounters() (model.Encounters, error) {
 	return encounters, nil
 }
 
-
 func (r *EncounterRepository) GetAllHiddenLocationEncounters() (model.HiddenLocationEncounters, error) {
 	// Ovde bi trebalo da izvršimo upit ka bazi podataka ili drugom skladištu podataka da dobijemo sve susrete
 	// Na primer, koristeći ORM poput GORM-a, možemo uraditi nešto poput sledećeg:
@@ -255,32 +256,32 @@ func (repo *EncounterRepository) Update(encounter *model.Encounter) error {
 	defer cancel()
 
 	encountersCollection := repo.getCollection()
-	filter := bson.M{"id": encounter.ID}
+	filter := bson.M{"id": encounter.Id}
 
 	update := bson.M{
-        "$set": bson.M{
-            "name":               encounter.Name,
-            "description":        encounter.Description,
-            "xp_points":          encounter.XpPoints,
-            "status":             encounter.Status,
-            "type":               encounter.Type,
-            "longitude":          encounter.Longitude,
-            "latitude":           encounter.Latitude,
-            "should_be_approved": encounter.ShouldBeApproved,
-        },
-    }
+		"$set": bson.M{
+			"name":               encounter.Name,
+			"description":        encounter.Description,
+			"xp_points":          encounter.XpPoints,
+			"status":             encounter.Status,
+			"type":               encounter.Type,
+			"longitude":          encounter.Longitude,
+			"latitude":           encounter.Latitude,
+			"should_be_approved": encounter.ShouldBeApproved,
+		},
+	}
 
 	result, err := encountersCollection.UpdateOne(ctx, filter, update)
-    if err != nil {
-        return err
-    }
+	if err != nil {
+		return err
+	}
 
-    if result.MatchedCount == 0 {
-        return errors.New("Encounter not found")
-    }
+	if result.MatchedCount == 0 {
+		return errors.New("Encounter not found")
+	}
 
-    repo.logger.println("Rows affected: ", result.ModifiedCount)
-    return nil
+	repo.logger.Println("Rows affected: ", result.ModifiedCount)
+	return nil
 }
 
 func (repo *EncounterRepository) UpdateHiddenLocationEncounter(encounter *model.HiddenLocationEncounter) error {
@@ -288,29 +289,29 @@ func (repo *EncounterRepository) UpdateHiddenLocationEncounter(encounter *model.
 	defer cancel()
 
 	encountersCollection := repo.getHiddenLocationEncountersCollection()
-	filter := bson.M{"id": encounter.ID}
+	filter := bson.M{"id": encounter.Id}
 
 	update := bson.M{
-        "$set": bson.M{
-            "image_url":         encounter.ImageURL,
-            "image_latitude":    encounter.ImageLatitude,
-            "image_longitude":   encounter.ImageLongitude,
-            "distance_treshold": encounter.DistanceTreshold,
-            "encounter_id":      encounter.EncounterId,
-        },
-    }
+		"$set": bson.M{
+			"image_url":         encounter.ImageURL,
+			"image_latitude":    encounter.ImageLatitude,
+			"image_longitude":   encounter.ImageLongitude,
+			"distance_treshold": encounter.DistanceTreshold,
+			"encounter_id":      encounter.Encounter,
+		},
+	}
 
 	result, err := encountersCollection.UpdateOne(ctx, filter, update)
-    if err != nil {
-        return err
-    }
+	if err != nil {
+		return err
+	}
 
-    if result.MatchedCount == 0 {
-        return errors.New("HiddenLocationEncounter not found")
-    }
+	if result.MatchedCount == 0 {
+		return errors.New("HiddenLocationEncounter not found")
+	}
 
-    repo.logger.println("Rows affected: ", result.ModifiedCount)
-    return nil
+	repo.logger.Println("Rows affected: ", result.ModifiedCount)
+	return nil
 }
 
 func (repo *EncounterRepository) UpdateSocialEncounter(encounter *model.SocialEncounter) error {
@@ -318,27 +319,27 @@ func (repo *EncounterRepository) UpdateSocialEncounter(encounter *model.SocialEn
 	defer cancel()
 
 	encountersCollection := repo.getSocialEncountersCollection()
-	filter := bson.M{"id": encounter.ID}
+	filter := bson.M{"id": encounter.Id}
 
 	update := bson.M{
-        "$set": bson.M{
-            "tourists_required_for_completion": encounter.TouristsRequiredForCompletion,
-            "distance_treshold":                encounter.DistanceTreshold,
-            "tourist_ids":                      encounter.TouristIDs,
-        },
-    }
+		"$set": bson.M{
+			"tourists_required_for_completion": encounter.TouristsRequiredForCompletion,
+			"distance_treshold":                encounter.DistanceTreshold,
+			"tourist_ids":                      encounter.TouristIDs,
+		},
+	}
 
 	result, err := encountersCollection.UpdateOne(ctx, filter, update)
-    if err != nil {
-        return err
-    }
+	if err != nil {
+		return err
+	}
 
-    if result.MatchedCount == 0 {
-        return errors.New("SocialEncounter not found")
-    }
+	if result.MatchedCount == 0 {
+		return errors.New("SocialEncounter not found")
+	}
 
-    repo.logger.println("Rows affected: ", result.ModifiedCount)
-    return nil
+	repo.logger.Println("Rows affected: ", result.ModifiedCount)
+	return nil
 }
 
 func (r *EncounterRepository) GetSocialEncounterId(baseEncounterID string) (string, error) {
@@ -365,15 +366,15 @@ func (r *EncounterRepository) GetSocialEncounterId(baseEncounterID string) (stri
 	filter := bson.M{"encounter.id": baseEncounterID}
 
 	var socialEncounter model.SocialEncounter
-    err := encountersCollection.FindOne(ctx, filter).Decode(&socialEncounter)
-    if err != nil {
-        if err == mongo.ErrNoDocuments {
-            return "", nil
-        }
-        return "", err
-    }
+	err := encountersCollection.FindOne(ctx, filter).Decode(&socialEncounter)
+	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			return "", nil
+		}
+		return "", err
+	}
 
-    return socialEncounter.Id.Hex(), nil
+	return socialEncounter.Id.Hex(), nil
 }
 
 func (r *EncounterRepository) GetHiddenLocationEncounterId(baseEncounterID string) (string, error) {
@@ -384,15 +385,15 @@ func (r *EncounterRepository) GetHiddenLocationEncounterId(baseEncounterID strin
 	filter := bson.M{"encounter.id": baseEncounterID}
 
 	var hiddenEncounter model.SocialEncounter
-    err := encountersCollection.FindOne(ctx, filter).Decode(&hiddenEncounter)
-    if err != nil {
-        if err == mongo.ErrNoDocuments {
-            return "", nil
-        }
-        return "", err
-    }
+	err := encountersCollection.FindOne(ctx, filter).Decode(&hiddenEncounter)
+	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			return "", nil
+		}
+		return "", err
+	}
 
-    return hiddenEncounter.Id.Hex(), nil
+	return hiddenEncounter.Id.Hex(), nil
 }
 
 func (r *EncounterRepository) DeleteSocialEncounter(socialEncounterID string) error {
@@ -409,24 +410,24 @@ func (r *EncounterRepository) DeleteSocialEncounter(socialEncounterID string) er
 	encountersCollection := r.getSocialEncountersCollection()
 
 	objID, err := primitive.ObjectIDFromHex(socialEncounterID)
-    if err != nil {
-        return err
-    }
+	if err != nil {
+		return err
+	}
 
 	filter := bson.M{"_id": objID}
 
-    result, err := encountersCollection.DeleteOne(ctx, filter)
-    if err != nil {
-        r.logger.Println(err)
-        return err
-    }
-	
+	result, err := encountersCollection.DeleteOne(ctx, filter)
+	if err != nil {
+		r.logger.Println(err)
+		return err
+	}
+
 	if result.DeletedCount == 0 {
-        return nil
-    }
+		return nil
+	}
 
 	r.logger.Printf("Deleted document ID: %v\n", objID)
-    return nil
+	return nil
 }
 
 func (r *EncounterRepository) DeleteHiddenLocationEncounter(hiddenLocationEncounterID string) error {
@@ -436,24 +437,24 @@ func (r *EncounterRepository) DeleteHiddenLocationEncounter(hiddenLocationEncoun
 	encountersCollection := r.getHiddenLocationEncountersCollection()
 
 	objID, err := primitive.ObjectIDFromHex(hiddenLocationEncounterID)
-    if err != nil {
-        return err
-    }
+	if err != nil {
+		return err
+	}
 
 	filter := bson.M{"_id": objID}
 
-    result, err := encountersCollection.DeleteOne(ctx, filter)
-    if err != nil {
-        r.logger.Println(err)
-        return err
-    }
-	
+	result, err := encountersCollection.DeleteOne(ctx, filter)
+	if err != nil {
+		r.logger.Println(err)
+		return err
+	}
+
 	if result.DeletedCount == 0 {
-        return nil
-    }
+		return nil
+	}
 
 	r.logger.Printf("Deleted document ID: %v\n", objID)
-    return nil
+	return nil
 }
 
 func (r *EncounterRepository) DeleteEncounter(baseEncounterID string) error {
@@ -463,24 +464,24 @@ func (r *EncounterRepository) DeleteEncounter(baseEncounterID string) error {
 	encountersCollection := r.getCollection()
 
 	objID, err := primitive.ObjectIDFromHex(baseEncounterID)
-    if err != nil {
-        return err
-    }
+	if err != nil {
+		return err
+	}
 
 	filter := bson.M{"_id": objID}
 
-    result, err := encountersCollection.DeleteOne(ctx, filter)
-    if err != nil {
-        r.logger.Println(err)
-        return err
-    }
+	result, err := encountersCollection.DeleteOne(ctx, filter)
+	if err != nil {
+		r.logger.Println(err)
+		return err
+	}
 
 	if result.DeletedCount == 0 {
-        return nil
-    }
+		return nil
+	}
 
 	r.logger.Printf("Deleted document ID: %v\n", objID)
-    return nil
+	return nil
 }
 
 /*
