@@ -38,18 +38,16 @@ func startServer(handlerEnc *handler.EncounterHandler, handlerExec *handler.Enco
 
 	//za zahteve iz c# proj ka ovamo
 		router.HandleFunc("/encounters/create", handlerEnc.Create).Methods("POST") //prevedeno!!!
-		router.HandleFunc("/encounters", handlerEnc.GetAllEncounters).Methods("GET") //prevedeno!!!
-
 		router.HandleFunc("/encounters/createSocialEncounter", handlerEnc.CreateSocialEncounter).Methods("POST") //prevedeno!!!
 		router.HandleFunc("/encounters/createHiddenLocationEncounter", handlerEnc.CreateHiddenLocationEncounter).Methods("POST") //prevedeno!!!
 
-		router.HandleFunc("/encounters/update", handlerEnc.Update).Methods("PUT")
-		router.HandleFunc("/encounters/updateHiddenLocationEncounter", handlerEnc.UpdateHiddenLocationEncounter).Methods("PUT")
-		router.HandleFunc("/encounters/updateSocialEncounter", handlerEnc.UpdateSocialEncounter).Methods("PUT")
+		router.HandleFunc("/encounters/update", handlerEnc.Update).Methods("PUT") //prevedeno!!!
+		router.HandleFunc("/encounters/updateHiddenLocationEncounter", handlerEnc.UpdateHiddenLocationEncounter).Methods("PUT") //prevedeno!!!
+		router.HandleFunc("/encounters/updateSocialEncounter", handlerEnc.UpdateSocialEncounter).Methods("PUT") //prevedeno!!!
 
-		router.HandleFunc("/encounters", handlerEnc.GetAllEncounters).Methods("GET")
-		router.HandleFunc("/hiddenLocationEncounters", handlerEnc.GetAllHiddenLocationEncounters).Methods("GET")
-		router.HandleFunc("/socialEncounters", handlerEnc.GetAllSocialEncounters).Methods("GET")
+		router.HandleFunc("/encounters", handlerEnc.GetAllEncounters).Methods("GET") //prevedeno!!!
+		router.HandleFunc("/hiddenLocationEncounters", handlerEnc.GetAllHiddenLocationEncounters).Methods("GET") //prevedeno!!!
+		router.HandleFunc("/socialEncounters", handlerEnc.GetAllSocialEncounters).Methods("GET") //prevedeno!!!
 
 		router.HandleFunc("/encounters/getEncounterById/{encounterId}", handlerEnc.GetEncounterById).Methods("GET")
 
@@ -57,9 +55,9 @@ func startServer(handlerEnc *handler.EncounterHandler, handlerExec *handler.Enco
 		router.HandleFunc("/encounters/getHiddenLocationEncounterId/{baseEncounterId}", handlerEnc.GetHiddenLocationEncounterId).Methods("GET")
 		router.HandleFunc("/encounters/getHiddenLocationEncounter/{encounterId}", handlerEnc.GetHiddenLocationEncounterByEncounterId).Methods("GET")
 
-		router.HandleFunc("/encounters/deleteEncounter/{baseEncounterId}", handlerEnc.DeleteEncounter).Methods("DELETE")
-		router.HandleFunc("/encounters/deleteSocialEncounter/{socialEncounterId}", handlerEnc.DeleteSocialEncounter).Methods("DELETE")
-		router.HandleFunc("/encounters/deleteHiddenLocationEncounter/{hiddenLocationEncounterId}", handlerEnc.DeleteHiddenLocationEncounter).Methods("DELETE")
+		router.HandleFunc("/encounters/deleteEncounter/{baseEncounterId}", handlerEnc.DeleteEncounter).Methods("DELETE") //prevedeno!!!
+		router.HandleFunc("/encounters/deleteSocialEncounter/{socialEncounterId}", handlerEnc.DeleteSocialEncounter).Methods("DELETE") //prevedeno!!!
+		router.HandleFunc("/encounters/deleteHiddenLocationEncounter/{hiddenLocationEncounterId}", handlerEnc.DeleteHiddenLocationEncounter).Methods("DELETE") //prevedeno!!!
 
 		// Encounter Execution
 		router.HandleFunc("/encounterExecution", handlerExec.GetAll).Methods("GET")
@@ -103,10 +101,22 @@ func main() {
 
 	router := mux.NewRouter().StrictSlash(true)
 
-	router.HandleFunc("/encounters/create", encounterHandler.Create).Methods("POST")
+	// Routes
 	router.HandleFunc("/encounters", encounterHandler.GetAllEncounters).Methods("GET")
+	router.HandleFunc("/socialEncounters", encounterHandler.GetAllSocialEncounters).Methods("GET")
+	router.HandleFunc("/hiddenLocationEncounters", encounterHandler.GetAllHiddenLocationEncounters).Methods("GET")
+
+	router.HandleFunc("/encounters/create", encounterHandler.Create).Methods("POST")
 	router.HandleFunc("/encounters/createSocialEncounter", encounterHandler.CreateSocialEncounter).Methods("POST")
 	router.HandleFunc("/encounters/createHiddenLocationEncounter", encounterHandler.CreateHiddenLocationEncounter).Methods("POST")
+
+	router.HandleFunc("/encounters/update", encounterHandler.Update).Methods("PUT")
+	router.HandleFunc("/encounters/updateSocialEncounter", encounterHandler.UpdateSocialEncounter).Methods("PUT")
+	router.HandleFunc("/encounters/updateHiddenLocationEncounter", encounterHandler.UpdateHiddenLocationEncounter).Methods("PUT")
+
+	router.HandleFunc("/encounters/deleteEncounter/{baseEncounterId}", encounterHandler.DeleteEncounter).Methods("DELETE")
+	router.HandleFunc("/encounters/deleteSocialEncounter/{socialEncounterId}", encounterHandler.DeleteSocialEncounter).Methods("DELETE")
+	router.HandleFunc("/encounters/deleteHiddenLocationEncounter/{hiddenLocationEncounterId}", encounterHandler.DeleteHiddenLocationEncounter).Methods("DELETE")
 
 	cors := gorillaHandlers.CORS(gorillaHandlers.AllowedOrigins([]string{"*"}))
 

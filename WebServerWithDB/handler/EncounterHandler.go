@@ -150,6 +150,7 @@ func (h *EncounterHandler) GetAllEncounters(w http.ResponseWriter, r *http.Reque
     w.WriteHeader(http.StatusOK)
     w.Write(encountersJSON)
 }
+*/
 
 func (h *EncounterHandler) GetAllSocialEncounters(w http.ResponseWriter, r *http.Request) {
     // Ovde bi trebalo da dobijemo sve susrete iz baze podataka
@@ -267,6 +268,7 @@ func (handler *EncounterHandler) UpdateSocialEncounter(writer http.ResponseWrite
 	json.NewEncoder(writer).Encode(encounter)
 }
 
+/*
 func (handler *EncounterHandler) GetSocialEncounterId(writer http.ResponseWriter, req *http.Request) {
 	baseEncounterId, err := strconv.Atoi(mux.Vars(req)["baseEncounterId"])
 	if err != nil {
@@ -316,6 +318,7 @@ func (handler *EncounterHandler) GetHiddenLocationEncounterId(writer http.Respon
 	writer.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(writer).Encode(response)
 }
+*/
 
 func (handler *EncounterHandler) DeleteSocialEncounter(writer http.ResponseWriter, req *http.Request) {
     // Dobijanje ID-a socijalnog susreta iz URL putanje
@@ -383,6 +386,7 @@ func (handler *EncounterHandler) DeleteEncounter(writer http.ResponseWriter, req
     writer.WriteHeader(http.StatusNoContent)
 }
 
+/*
 // GetHiddenLocationEncounterByEncounterId handles the GET request for getting a hidden location encounter by encounter ID
 func (handler *EncounterHandler) GetHiddenLocationEncounterByEncounterId(w http.ResponseWriter, r *http.Request) {
     // Extract the encounterId from the URL parameters

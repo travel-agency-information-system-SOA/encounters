@@ -183,37 +183,57 @@ func (r *EncounterRepository) GetAllEncounters() (model.Encounters, error) {
 	return encounters, nil
 }
 
-/*
-func (r *EncounterRepository) GetAllHiddenLocationEncounters() ([]*model.HiddenLocationEncounter, error) {
+
+func (r *EncounterRepository) GetAllHiddenLocationEncounters() (model.HiddenLocationEncounters, error) {
 	// Ovde bi trebalo da izvršimo upit ka bazi podataka ili drugom skladištu podataka da dobijemo sve susrete
 	// Na primer, koristeći ORM poput GORM-a, možemo uraditi nešto poput sledećeg:
-	var encounters []*model.HiddenLocationEncounter
+	/*var encounters []*model.HiddenLocationEncounter
 	if err := r.DatabaseConnection.Find(&encounters).Error; err != nil {
 		// Ukoliko dođe do greške pri izvršavanju upita, vraćamo grešku
 		return nil, err
 	}
 
-	return encounters, nil
-}
-*/
+	return encounters, nil*/
 
-/*
-func (r *EncounterRepository) GetAllSocialEncounters() ([]*model.SocialEncounter, error) {
-	// Ovde bi trebalo da izvršimo upit ka bazi podataka ili drugom skladištu podataka da dobijemo sve susrete
-	// Na primer, koristeći ORM poput GORM-a, možemo uraditi nešto poput sledećeg:
-	var encounters []*model.SocialEncounter
-	if err := r.DatabaseConnection.Find(&encounters).Error; err != nil {
-		// Ukoliko dođe do greške pri izvršavanju upita, vraćamo grešku
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	enocuntersCollection := r.getHiddenLocationEncountersCollection()
+
+	var encounters model.HiddenLocationEncounters
+	encountersCursor, err := enocuntersCollection.Find(ctx, bson.M{})
+	if err != nil {
+		r.logger.Println(err)
 		return nil, err
 	}
-
+	if err = encountersCursor.All(ctx, &encounters); err != nil {
+		r.logger.Println(err)
+		return nil, err
+	}
 	return encounters, nil
 }
-*/
 
-/*
+func (r *EncounterRepository) GetAllSocialEncounters() (model.SocialEncounters, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	enocuntersCollection := r.getSocialEncountersCollection()
+
+	var encounters model.SocialEncounters
+	encountersCursor, err := enocuntersCollection.Find(ctx, bson.M{})
+	if err != nil {
+		r.logger.Println(err)
+		return nil, err
+	}
+	if err = encountersCursor.All(ctx, &encounters); err != nil {
+		r.logger.Println(err)
+		return nil, err
+	}
+	return encounters, nil
+}
+
 func (repo *EncounterRepository) Update(encounter *model.Encounter) error {
-	dbResult := repo.DatabaseConnection.Model(&model.Encounter{}).Where("id = ?", encounter.ID).Updates(map[string]interface{}{
+	/*dbResult := repo.DatabaseConnection.Model(&model.Encounter{}).Where("id = ?", encounter.ID).Updates(map[string]interface{}{
 		"name":               encounter.Name,
 		"description":        encounter.Description,
 		"xp_points":          encounter.XpPoints,
@@ -230,45 +250,98 @@ func (repo *EncounterRepository) Update(encounter *model.Encounter) error {
 		return errors.New("Encounter not found")
 	}
 	println("Rows affected: ", dbResult.RowsAffected)
-	return nil
+	return nil*/
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	encountersCollection := repo.getCollection()
+	filter := bson.M{"id": encounter.ID}
+
+	update := bson.M{
+        "$set": bson.M{
+            "name":               encounter.Name,
+            "description":        encounter.Description,
+            "xp_points":          encounter.XpPoints,
+            "status":             encounter.Status,
+            "type":               encounter.Type,
+            "longitude":          encounter.Longitude,
+            "latitude":           encounter.Latitude,
+            "should_be_approved": encounter.ShouldBeApproved,
+        },
+    }
+
+	result, err := encountersCollection.UpdateOne(ctx, filter, update)
+    if err != nil {
+        return err
+    }
+
+    if result.MatchedCount == 0 {
+        return errors.New("Encounter not found")
+    }
+
+    repo.logger.println("Rows affected: ", result.ModifiedCount)
+    return nil
 }
 
 func (repo *EncounterRepository) UpdateHiddenLocationEncounter(encounter *model.HiddenLocationEncounter) error {
-	dbResult := repo.DatabaseConnection.Model(&model.HiddenLocationEncounter{}).Where("id = ?", encounter.ID).Updates(map[string]interface{}{
-		"image_url":         encounter.ImageURL,
-		"image_latitude":    encounter.ImageLatitude,
-		"image_longitude":   encounter.ImageLongitude,
-		"distance_treshold": encounter.DistanceTreshold,
-		"encounter_id":      encounter.EncounterId,
-		// Dodajte ostale polja ovde prema potrebi
-	})
-	if dbResult.Error != nil {
-		return dbResult.Error
-	}
-	if dbResult.RowsAffected == 0 {
-		return errors.New("HiddenLocationEncounter not found")
-	}
-	println("Rows affected: ", dbResult.RowsAffected)
-	return nil
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	encountersCollection := repo.getHiddenLocationEncountersCollection()
+	filter := bson.M{"id": encounter.ID}
+
+	update := bson.M{
+        "$set": bson.M{
+            "image_url":         encounter.ImageURL,
+            "image_latitude":    encounter.ImageLatitude,
+            "image_longitude":   encounter.ImageLongitude,
+            "distance_treshold": encounter.DistanceTreshold,
+            "encounter_id":      encounter.EncounterId,
+        },
+    }
+
+	result, err := encountersCollection.UpdateOne(ctx, filter, update)
+    if err != nil {
+        return err
+    }
+
+    if result.MatchedCount == 0 {
+        return errors.New("HiddenLocationEncounter not found")
+    }
+
+    repo.logger.println("Rows affected: ", result.ModifiedCount)
+    return nil
 }
 
 func (repo *EncounterRepository) UpdateSocialEncounter(encounter *model.SocialEncounter) error {
-	dbResult := repo.DatabaseConnection.Model(&model.SocialEncounter{}).Where("id = ?", encounter.ID).Updates(map[string]interface{}{
-		"tourists_required_for_completion": encounter.TouristsRequiredForCompletion,
-		"distance_treshold":                encounter.DistanceTreshold,
-		"tourist_ids":                      encounter.TouristIDs,
-		// Dodajte ostale polja ovde prema potrebi
-	})
-	if dbResult.Error != nil {
-		return dbResult.Error
-	}
-	if dbResult.RowsAffected == 0 {
-		return errors.New("SocialEncounter not found")
-	}
-	println("Rows affected: ", dbResult.RowsAffected)
-	return nil
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	encountersCollection := repo.getSocialEncountersCollection()
+	filter := bson.M{"id": encounter.ID}
+
+	update := bson.M{
+        "$set": bson.M{
+            "tourists_required_for_completion": encounter.TouristsRequiredForCompletion,
+            "distance_treshold":                encounter.DistanceTreshold,
+            "tourist_ids":                      encounter.TouristIDs,
+        },
+    }
+
+	result, err := encountersCollection.UpdateOne(ctx, filter, update)
+    if err != nil {
+        return err
+    }
+
+    if result.MatchedCount == 0 {
+        return errors.New("SocialEncounter not found")
+    }
+
+    repo.logger.println("Rows affected: ", result.ModifiedCount)
+    return nil
 }
 
+/*
 func (r *EncounterRepository) GetSocialEncounterId(baseEncounterID int) (int, error) {
 	var socialEncounterID int
 
@@ -306,42 +379,97 @@ func (r *EncounterRepository) GetHiddenLocationEncounterId(baseEncounterID int) 
 	// Ako nema greške, vraćamo ID društvenog susreta
 	return hiddenLocationEncounterID, nil
 }
+*/
 
 func (r *EncounterRepository) DeleteSocialEncounter(socialEncounterID int) error {
 	// Izvršavanje SQL upita za brisanje socijalnog susreta na osnovu njegovog ID-ja
-	result := r.DatabaseConnection.Exec("DELETE FROM social_encounters WHERE id = ?", socialEncounterID)
+	/*result := r.DatabaseConnection.Exec("DELETE FROM social_encounters WHERE id = ?", socialEncounterID)
 	if result.Error != nil {
 		// Ukoliko dođe do greške prilikom izvršavanja SQL upita, vraćamo je kao rezultat
 		return result.Error
 	}
-	return nil
+	return nil*/
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	encountersCollection := r.getSocialEncountersCollection()
+
+	objID, err := primitive.ObjectIDFromHex(socialEncounterID)
+    if err != nil {
+        return err
+    }
+
+	filter := bson.M{"_id": objID}
+
+    result, err := encountersCollection.DeleteOne(ctx, filter)
+    if err != nil {
+        r.logger.Println(err)
+        return err
+    }
+	
+	if result.DeletedCount == 0 {
+        return nil
+    }
+
+	r.logger.Printf("Documents ID: %v\n", socialEncounterID)
+    return nil
 }
 
 func (r *EncounterRepository) DeleteHiddenLocationEncounter(hiddenLocationEncounterID int) error {
-	// Izvršavanje SQL upita za brisanje skrivenog susreta na osnovu njegovog ID-ja
-	result := r.DatabaseConnection.Exec("DELETE FROM hidden_location_encounters WHERE id = ?", hiddenLocationEncounterID)
-	if result.Error != nil {
-		// Ukoliko dođe do greške prilikom izvršavanja SQL upita, vraćamo je kao rezultat
-		return result.Error
-	}
-	return nil
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	encountersCollection := r.getHiddenLocationEncountersCollection()
+
+	objID, err := primitive.ObjectIDFromHex(hiddenLocationEncounterID)
+    if err != nil {
+        return err
+    }
+
+	filter := bson.M{"_id": objID}
+
+    result, err := encountersCollection.DeleteOne(ctx, filter)
+    if err != nil {
+        r.logger.Println(err)
+        return err
+    }
+	
+	if result.DeletedCount == 0 {
+        return nil
+    }
+
+	r.logger.Printf("Documents ID: %v\n", hiddenLocationEncounterID)
+    return nil
 }
 
 func (r *EncounterRepository) DeleteEncounter(baseEncounterID int) error {
-	// Izvršavanje upita za brisanje susreta na osnovu ID-ja
-	result := r.DatabaseConnection.Where("id = ?", baseEncounterID).Delete(&model.Encounter{})
-	if result.Error != nil {
-		// Provera greške prilikom brisanja
-		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-			// Ako ne postoji susret sa datim ID-jem, ne vraćamo grešku, već samo ne obavljamo nikakvo brisanje
-			return nil
-		}
-		// Ako postoji druga greška, vraćamo je
-		return result.Error
-	}
-	return nil
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	encountersCollection := r.getCollection()
+
+	objID, err := primitive.ObjectIDFromHex(baseEncounterID)
+    if err != nil {
+        return err
+    }
+
+	filter := bson.M{"_id": objID}
+
+    result, err := encountersCollection.DeleteOne(ctx, filter)
+    if err != nil {
+        r.logger.Println(err)
+        return err
+    }
+
+	if result.DeletedCount == 0 {
+        return nil
+    }
+
+	r.logger.Printf("Documents ID: %v\n", baseEncounterID)
+    return nil
 }
 
+/*
 func (r *EncounterRepository) GetHiddenLocationEncounterByEncounterId(baseEncounterID int) (*model.HiddenLocationEncounter, error) {
 	var hiddenLocationEncounter model.HiddenLocationEncounter
 

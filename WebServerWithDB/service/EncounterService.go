@@ -48,19 +48,6 @@ func (service *EncounterService) CreateHiddenLocationEncounter(encounter *model.
 	return nil
 }
 
-/*
-
-func (s *EncounterService) GetAllEncounters() ([]*model.Encounter, error) {
-    // Poziv baze podataka ili nekog drugog skladišta podataka da dobijemo sve susrete
-    encounters, err := s.EncounterRepo.GetAllEncounters()
-    if err != nil {
-        // Ukoliko dođe do greške, vraćamo praznu listu i grešku
-        return nil, err
-    }
-
-    return encounters, nil
-}
-
 func (s *EncounterService) GetAllHiddenLocationEncounters() ([]*model.HiddenLocationEncounter, error) {
     // Poziv baze podataka ili nekog drugog skladišta podataka da dobijemo sve susrete
     encounters, err := s.EncounterRepo.GetAllHiddenLocationEncounters()
@@ -128,7 +115,7 @@ func (s *EncounterService) UpdateSocialEncounter(encounter *model.SocialEncounte
 	return nil
 }
 
-
+/*
 func (s *EncounterService) GetHiddenLocationEncounterId(baseEncounterID int) (int, error) {
 	// Pozivamo odgovarajuću funkciju u repozitorijumu za pronalaženje ID-a skrivenog lokacijskog susreta
 	hiddenLocationEncounterID, err := s.EncounterRepo.GetHiddenLocationEncounterId(baseEncounterID)
@@ -159,6 +146,7 @@ func (s *EncounterService) GetSocialEncounterId(baseEncounterID int) (int, error
 
 	return socialEncounterID, nil
 }
+*/
 
 func (s *EncounterService) DeleteSocialEncounter(socialEncounterID int) error {
     // Poziv funkcije za brisanje socijalnog susreta iz repozitorijuma
@@ -190,6 +178,7 @@ func (s *EncounterService) DeleteEncounter(baseEncounterID int) error {
     return nil
 }
 
+/*
 func (s *EncounterService) GetHiddenLocationEncounterByEncounterId(encounterId int) (*model.HiddenLocationEncounter, error) {
     // Call the repository method to fetch the hidden location encounter by encounter ID
     hiddenLocationEncounter, err := s.EncounterRepo.GetHiddenLocationEncounterByEncounterId(encounterId)
