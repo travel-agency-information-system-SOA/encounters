@@ -115,38 +115,36 @@ func (s *EncounterService) UpdateSocialEncounter(encounter *model.SocialEncounte
 	return nil
 }
 
-/*
-func (s *EncounterService) GetHiddenLocationEncounterId(baseEncounterID int) (int, error) {
+func (s *EncounterService) GetHiddenLocationEncounterId(baseEncounterID string) (string, error) {
 	// Pozivamo odgovarajuću funkciju u repozitorijumu za pronalaženje ID-a skrivenog lokacijskog susreta
 	hiddenLocationEncounterID, err := s.EncounterRepo.GetHiddenLocationEncounterId(baseEncounterID)
 	if err != nil {
 		// Provera da li je susret pronađen
 		if errors.Is(err, ErrEncounterNotFound) {
-			return -1, ErrEncounterNotFound
+			return "", ErrEncounterNotFound
 		}
 		// Vraćanje drugih grešaka ako se nešto drugo dogodi
-		return -1, err
+		return "", err
 	}
 
 	return hiddenLocationEncounterID, nil
 }
 
 // GetSocialEncounterID vraća ID socijalnog susreta na osnovu ID-a osnovnog susreta
-func (s *EncounterService) GetSocialEncounterId(baseEncounterID int) (int, error) {
+func (s *EncounterService) GetSocialEncounterId(baseEncounterID string) (string, error) {
 	// Pozivamo odgovarajuću funkciju u repozitorijumu za pronalaženje ID-a socijalnog susreta
 	socialEncounterID, err := s.EncounterRepo.GetSocialEncounterId(baseEncounterID)
 	if err != nil {
 		// Provera da li je susret pronađen
 		if errors.Is(err, ErrEncounterNotFound) {
-			return -1, ErrEncounterNotFound
+			return "", ErrEncounterNotFound
 		}
 		// Vraćanje drugih grešaka ako se nešto drugo dogodi
-		return -1, err
+		return "", err
 	}
 
 	return socialEncounterID, nil
 }
-*/
 
 func (s *EncounterService) DeleteSocialEncounter(socialEncounterID string) error {
     // Poziv funkcije za brisanje socijalnog susreta iz repozitorijuma
@@ -158,7 +156,7 @@ func (s *EncounterService) DeleteSocialEncounter(socialEncounterID string) error
     return nil
 }
 
-func (s *EncounterService) DeleteHiddenLocationEncounter(hiddenLocationEncounterID int) error {
+func (s *EncounterService) DeleteHiddenLocationEncounter(hiddenLocationEncounterID string) error {
     // Poziv funkcije za brisanje skrivenog susreta iz repozitorijuma
     err := s.EncounterRepo.DeleteHiddenLocationEncounter(hiddenLocationEncounterID)
     if err != nil {
@@ -168,7 +166,7 @@ func (s *EncounterService) DeleteHiddenLocationEncounter(hiddenLocationEncounter
     return nil
 }
 
-func (s *EncounterService) DeleteEncounter(baseEncounterID int) error {
+func (s *EncounterService) DeleteEncounter(baseEncounterID string) error {
     // Pozivamo funkciju u repozitorijumu za brisanje susreta
     err := s.EncounterRepo.DeleteEncounter(baseEncounterID)
     if err != nil {

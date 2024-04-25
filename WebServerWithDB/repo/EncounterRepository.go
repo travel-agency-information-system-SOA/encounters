@@ -341,9 +341,8 @@ func (repo *EncounterRepository) UpdateSocialEncounter(encounter *model.SocialEn
     return nil
 }
 
-/*
-func (r *EncounterRepository) GetSocialEncounterId(baseEncounterID int) (int, error) {
-	var socialEncounterID int
+func (r *EncounterRepository) GetSocialEncounterId(baseEncounterID string) (string, error) {
+	/*var socialEncounterID int
 
 	// Izvršavanje upita za dobavljanje ID-a društvenog susreta
 	result := r.DatabaseConnection.Model(&model.SocialEncounter{}).Select("id").Where("encounter_id = ?", baseEncounterID).First(&socialEncounterID)
@@ -358,28 +357,43 @@ func (r *EncounterRepository) GetSocialEncounterId(baseEncounterID int) (int, er
 	}
 
 	// Ako nema greške, vraćamo ID društvenog susreta
-	return socialEncounterID, nil
+	return socialEncounterID, nil*/
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	encountersCollection := r.getSocialEncountersCollection()
+	filter := bson.M{"encounter.id": baseEncounterID}
+
+	var socialEncounter model.SocialEncounter
+    err := encountersCollection.FindOne(ctx, filter).Decode(&socialEncounter)
+    if err != nil {
+        if err == mongo.ErrNoDocuments {
+            return "", nil
+        }
+        return "", err
+    }
+
+    return socialEncounter.Id.Hex(), nil
 }
 
-func (r *EncounterRepository) GetHiddenLocationEncounterId(baseEncounterID int) (int, error) {
-	var hiddenLocationEncounterID int
+func (r *EncounterRepository) GetHiddenLocationEncounterId(baseEncounterID string) (string, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
 
-	// Izvršavanje upita za dobavljanje ID-a društvenog susreta
-	result := r.DatabaseConnection.Model(&model.HiddenLocationEncounter{}).Select("id").Where("encounter_id = ?", baseEncounterID).First(&hiddenLocationEncounterID)
-	if result.Error != nil {
-		// Provera greške prilikom izvršavanja upita
-		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-			// Ako red ne postoji, vraćamo -1 kao ID društvenog susreta
-			return -1, nil
-		}
-		// Ako postoji druga greška, vraćamo grešku
-		return 0, result.Error
-	}
+	encountersCollection := r.getHiddenLocationEncountersCollection()
+	filter := bson.M{"encounter.id": baseEncounterID}
 
-	// Ako nema greške, vraćamo ID društvenog susreta
-	return hiddenLocationEncounterID, nil
+	var hiddenEncounter model.SocialEncounter
+    err := encountersCollection.FindOne(ctx, filter).Decode(&hiddenEncounter)
+    if err != nil {
+        if err == mongo.ErrNoDocuments {
+            return "", nil
+        }
+        return "", err
+    }
+
+    return hiddenEncounter.Id.Hex(), nil
 }
-*/
 
 func (r *EncounterRepository) DeleteSocialEncounter(socialEncounterID string) error {
 	// Izvršavanje SQL upita za brisanje socijalnog susreta na osnovu njegovog ID-ja
@@ -415,7 +429,7 @@ func (r *EncounterRepository) DeleteSocialEncounter(socialEncounterID string) er
     return nil
 }
 
-func (r *EncounterRepository) DeleteHiddenLocationEncounter(hiddenLocationEncounterID int) error {
+func (r *EncounterRepository) DeleteHiddenLocationEncounter(hiddenLocationEncounterID string) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
@@ -438,11 +452,11 @@ func (r *EncounterRepository) DeleteHiddenLocationEncounter(hiddenLocationEncoun
         return nil
     }
 
-	r.logger.Printf("Documents ID: %v\n", hiddenLocationEncounterID)
+	r.logger.Printf("Deleted document ID: %v\n", objID)
     return nil
 }
 
-func (r *EncounterRepository) DeleteEncounter(baseEncounterID int) error {
+func (r *EncounterRepository) DeleteEncounter(baseEncounterID string) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
@@ -465,7 +479,7 @@ func (r *EncounterRepository) DeleteEncounter(baseEncounterID int) error {
         return nil
     }
 
-	r.logger.Printf("Documents ID: %v\n", baseEncounterID)
+	r.logger.Printf("Deleted document ID: %v\n", objID)
     return nil
 }
 

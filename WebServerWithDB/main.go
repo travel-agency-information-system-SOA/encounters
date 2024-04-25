@@ -51,8 +51,8 @@ func startServer(handlerEnc *handler.EncounterHandler, handlerExec *handler.Enco
 
 		router.HandleFunc("/encounters/getEncounterById/{encounterId}", handlerEnc.GetEncounterById).Methods("GET")
 
-		router.HandleFunc("/encounters/getSocialEncounterId/{baseEncounterId}", handlerEnc.GetSocialEncounterId).Methods("GET")
-		router.HandleFunc("/encounters/getHiddenLocationEncounterId/{baseEncounterId}", handlerEnc.GetHiddenLocationEncounterId).Methods("GET")
+		router.HandleFunc("/encounters/getSocialEncounterId/{baseEncounterId}", handlerEnc.GetSocialEncounterId).Methods("GET") //prevedeno!!!
+		router.HandleFunc("/encounters/getHiddenLocationEncounterId/{baseEncounterId}", handlerEnc.GetHiddenLocationEncounterId).Methods("GET") //prevedeno!!!
 		router.HandleFunc("/encounters/getHiddenLocationEncounter/{encounterId}", handlerEnc.GetHiddenLocationEncounterByEncounterId).Methods("GET")
 
 		router.HandleFunc("/encounters/deleteEncounter/{baseEncounterId}", handlerEnc.DeleteEncounter).Methods("DELETE") //prevedeno!!!
@@ -117,6 +117,9 @@ func main() {
 	router.HandleFunc("/encounters/deleteEncounter/{baseEncounterId}", encounterHandler.DeleteEncounter).Methods("DELETE")
 	router.HandleFunc("/encounters/deleteSocialEncounter/{socialEncounterId}", encounterHandler.DeleteSocialEncounter).Methods("DELETE")
 	router.HandleFunc("/encounters/deleteHiddenLocationEncounter/{hiddenLocationEncounterId}", encounterHandler.DeleteHiddenLocationEncounter).Methods("DELETE")
+
+	router.HandleFunc("/encounters/getSocialEncounterId/{baseEncounterId}", encounterHandler.GetSocialEncounterId).Methods("GET")
+	router.HandleFunc("/encounters/getHiddenLocationEncounterId/{baseEncounterId}", encounterHandler.GetHiddenLocationEncounterId).Methods("GET")
 
 	cors := gorillaHandlers.CORS(gorillaHandlers.AllowedOrigins([]string{"*"}))
 

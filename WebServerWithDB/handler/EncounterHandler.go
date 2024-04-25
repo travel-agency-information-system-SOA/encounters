@@ -268,14 +268,16 @@ func (handler *EncounterHandler) UpdateSocialEncounter(writer http.ResponseWrite
 	json.NewEncoder(writer).Encode(encounter)
 }
 
-/*
 func (handler *EncounterHandler) GetSocialEncounterId(writer http.ResponseWriter, req *http.Request) {
-	baseEncounterId, err := strconv.Atoi(mux.Vars(req)["baseEncounterId"])
+	vars := mux.Vars(req)
+
+	baseEncounterId := vars["baseEncounterId"]
+	/*baseEncounterId, err := strconv.Atoi(mux.Vars(req)["baseEncounterId"])
 	if err != nil {
 		log.Println("Error converting baseEncounterId to int:", err)
 		http.Error(writer, "Invalid baseEncounterId", http.StatusBadRequest)
 		return
-	}
+	}*/
 
 	socialEncounterId, err := handler.EncounterService.GetSocialEncounterId(baseEncounterId)
 	if err != nil {
@@ -285,7 +287,7 @@ func (handler *EncounterHandler) GetSocialEncounterId(writer http.ResponseWriter
 	}
 
 	response := struct {
-		SocialEncounterId int `json:"socialEncounterId"`
+		SocialEncounterId string `json:"socialEncounterId"`
 	}{
 		SocialEncounterId: socialEncounterId,
 	}
@@ -295,12 +297,9 @@ func (handler *EncounterHandler) GetSocialEncounterId(writer http.ResponseWriter
 }
 
 func (handler *EncounterHandler) GetHiddenLocationEncounterId(writer http.ResponseWriter, req *http.Request) {
-	baseEncounterId, err := strconv.Atoi(mux.Vars(req)["baseEncounterId"])
-	if err != nil {
-		log.Println("Error converting baseEncounterId to int:", err)
-		http.Error(writer, "Invalid baseEncounterId", http.StatusBadRequest)
-		return
-	}
+	vars := mux.Vars(req)
+
+	baseEncounterId := vars["baseEncounterId"]
 
 	hiddenLocationEncounterId, err := handler.EncounterService.GetHiddenLocationEncounterId(baseEncounterId)
 	if err != nil {
@@ -310,7 +309,7 @@ func (handler *EncounterHandler) GetHiddenLocationEncounterId(writer http.Respon
 	}
 
 	response := struct {
-		HiddenLocationEncounterId int `json:"hiddenLocationEncounterId"`
+		HiddenLocationEncounterId string `json:"hiddenLocationEncounterId"`
 	}{
 		HiddenLocationEncounterId: hiddenLocationEncounterId,
 	}
@@ -318,20 +317,15 @@ func (handler *EncounterHandler) GetHiddenLocationEncounterId(writer http.Respon
 	writer.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(writer).Encode(response)
 }
-*/
 
 func (handler *EncounterHandler) DeleteSocialEncounter(writer http.ResponseWriter, req *http.Request) {
     // Dobijanje ID-a socijalnog susreta iz URL putanje
-    vars := mux.Vars(req)
-    socialEncounterID, err := strconv.Atoi(vars["socialEncounterId"])
-    if err != nil {
-        log.Println("Error converting socialEncounterId to integer:", err)
-        http.Error(writer, "Invalid socialEncounterId", http.StatusBadRequest)
-        return
-    }
+	vars := mux.Vars(req)
+
+	socialEncounterIDStr := vars["socialEncounterId"]
 
     // Poziv metode u servisu za brisanje socijalnog susreta
-    err = handler.EncounterService.DeleteSocialEncounter(socialEncounterID)
+    err = handler.EncounterService.DeleteSocialEncounter(socialEncounterIDStr)
     if err != nil {
         log.Println("Error while deleting the social encounter:", err)
         http.Error(writer, "Error while deleting the social encounter", http.StatusInternalServerError)
@@ -345,15 +339,11 @@ func (handler *EncounterHandler) DeleteSocialEncounter(writer http.ResponseWrite
 func (handler *EncounterHandler) DeleteHiddenLocationEncounter(writer http.ResponseWriter, req *http.Request) {
     // Dobijanje ID-a skrivenog susreta iz URL putanje
     vars := mux.Vars(req)
-    hiddenLocationEncounterID, err := strconv.Atoi(vars["hiddenLocationEncounterId"])
-    if err != nil {
-        log.Println("Error converting hiddenLocationEncounterId to integer:", err)
-        http.Error(writer, "Invalid hiddenLocationEncounterId", http.StatusBadRequest)
-        return
-    }
+
+	hiddenLocationEncounterIDStr := vars["hiddenLocationEncounterId"]
 
     // Poziv metode u servisu za brisanje skrivenog susreta
-    err = handler.EncounterService.DeleteHiddenLocationEncounter(hiddenLocationEncounterID)
+    err = handler.EncounterService.DeleteHiddenLocationEncounter(hiddenLocationEncounterIDStr)
     if err != nil {
         log.Println("Error while deleting the hidden location encounter:", err)
         http.Error(writer, "Error while deleting the hidden location encounter", http.StatusInternalServerError)
