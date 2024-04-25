@@ -148,7 +148,7 @@ func (s *EncounterService) GetSocialEncounterId(baseEncounterID int) (int, error
 }
 */
 
-func (s *EncounterService) DeleteSocialEncounter(socialEncounterID int) error {
+func (s *EncounterService) DeleteSocialEncounter(socialEncounterID string) error {
     // Poziv funkcije za brisanje socijalnog susreta iz repozitorijuma
     err := s.EncounterRepo.DeleteSocialEncounter(socialEncounterID)
     if err != nil {

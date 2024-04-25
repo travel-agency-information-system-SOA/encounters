@@ -381,7 +381,7 @@ func (r *EncounterRepository) GetHiddenLocationEncounterId(baseEncounterID int) 
 }
 */
 
-func (r *EncounterRepository) DeleteSocialEncounter(socialEncounterID int) error {
+func (r *EncounterRepository) DeleteSocialEncounter(socialEncounterID string) error {
 	// Izvršavanje SQL upita za brisanje socijalnog susreta na osnovu njegovog ID-ja
 	/*result := r.DatabaseConnection.Exec("DELETE FROM social_encounters WHERE id = ?", socialEncounterID)
 	if result.Error != nil {
@@ -411,7 +411,7 @@ func (r *EncounterRepository) DeleteSocialEncounter(socialEncounterID int) error
         return nil
     }
 
-	r.logger.Printf("Documents ID: %v\n", socialEncounterID)
+	r.logger.Printf("Deleted document ID: %v\n", objID)
     return nil
 }
 

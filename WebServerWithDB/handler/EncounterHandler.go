@@ -367,15 +367,17 @@ func (handler *EncounterHandler) DeleteHiddenLocationEncounter(writer http.Respo
 func (handler *EncounterHandler) DeleteEncounter(writer http.ResponseWriter, req *http.Request) {
     // Uzimanje ID-ja susreta iz putanje zahteva
     vars := mux.Vars(req)
-    baseEncounterID, err := strconv.Atoi(vars["baseEncounterId"])
+
+	baseEncounterIDStr := vars["baseEncounterId"]
+    /*baseEncounterID, err := strconv.Atoi(vars["baseEncounterId"])
     if err != nil {
         log.Println("Error converting baseEncounterId to int:", err)
         http.Error(writer, "Invalid baseEncounterId", http.StatusBadRequest)
         return
-    }
+    }*/
 
     // Pozivanje odgovarajuće funkcije za brisanje susreta iz servisa
-    err = handler.EncounterService.DeleteEncounter(baseEncounterID)
+    err = handler.EncounterService.DeleteEncounter(baseEncounterIDStr)
     if err != nil {
         log.Println("Error deleting encounter:", err)
         http.Error(writer, "Error deleting encounter", http.StatusInternalServerError)
