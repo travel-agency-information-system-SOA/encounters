@@ -4,121 +4,43 @@ import (
 	"context"
 	"database-example/model"
 	"errors"
-	"fmt"
-	"log"
-	"os"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
-	"go.mongodb.org/mongo-driver/mongo/readpref"
 )
 
+/*
 type EncounterRepository struct {
 	//DatabaseConnection *gorm.DB //za konekciju sa bazom podataka
 	cli    *mongo.Client
 	logger *log.Logger
 }
-
-/*
-// NoSQL: Constructor which reads db configuration from environment
-func New(ctx context.Context, logger *log.Logger) (*EncounterRepository, error) {
-	dburi := os.Getenv("MONGO_DB_URI")
-
-	client, err := mongo.NewClient(options.Client().ApplyURI(dburi))
-	if err != nil {
-		return nil, err
-	}
-
-	err = client.Connect(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	return &EncounterRepository{
-		cli:    client,
-		logger: logger,
-	}, nil
-}
 */
 
-// NoSQL: Constructor which reads db configuration from environment
-func New(ctx context.Context, logger *log.Logger) (*EncounterRepository, error) {
-	dbURI := os.Getenv("MONGO_DB_URI")
-	dbName := "encounters" // Naziv nove baze koju želite da kreirate
-
-	clientOptions := options.Client().ApplyURI("mongodb://" + dbURI + "/?connect=direct")
-
-	client, err := mongo.Connect(ctx, clientOptions)
-
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Println("Connected to MongoDB!")
-
-	// Check the connection
-	err = client.Ping(context.TODO(), nil)
-
-	// Kreiranje nove baze podataka
-	client.Database(dbName).CreateCollection(ctx, "encounters_collection")
-	if err != nil {
-		return nil, err
-	}
-
-	return &EncounterRepository{
-		cli:    client,
-		logger: logger,
-	}, nil
+type EncounterRepository struct {
+	store *Repository
 }
 
-// Disconnect from database
-func (er *EncounterRepository) Disconnect(ctx context.Context) error {
-	err := er.cli.Disconnect(ctx)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-// Check database connection
-func (er *EncounterRepository) Ping() {
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-
-	// Check connection -> if no error, connection is established
-	err := er.cli.Ping(ctx, readpref.Primary())
-	if err != nil {
-		er.logger.Println(err)
-	}
-
-	// Print available databases
-	databases, err := er.cli.ListDatabaseNames(ctx, bson.M{})
-	if err != nil {
-		er.logger.Println(err)
-	}
-	fmt.Println(databases)
+func NewEncounterRepository(r *Repository) *EncounterRepository {
+	return &EncounterRepository{r}
 }
 
 func (er *EncounterRepository) getCollection() *mongo.Collection {
-	encounterDatabase := er.cli.Database("encounters")
+	encounterDatabase := er.store.cli.Database("encounters")
 	encoutersCollection := encounterDatabase.Collection("encounters_collection")
 	return encoutersCollection
 }
 
 func (er *EncounterRepository) getSocialEncountersCollection() *mongo.Collection {
-	encounterDatabase := er.cli.Database("encounters") //ista baza druga kolekcija
+	encounterDatabase := er.store.cli.Database("encounters") //ista baza druga kolekcija
 	socialEncoutersCollection := encounterDatabase.Collection("socialEncounters_collection")
 	return socialEncoutersCollection
 }
 
 func (er *EncounterRepository) getHiddenLocationEncountersCollection() *mongo.Collection {
-	encounterDatabase := er.cli.Database("encounters") //ista baza druga kolekcija
+	encounterDatabase := er.store.cli.Database("encounters") //ista baza druga kolekcija
 	hiddenLocationEncoutersCollection := encounterDatabase.Collection("hiddenLocationEncouters_collection")
 	return hiddenLocationEncoutersCollection
 }
@@ -130,10 +52,10 @@ func (repo *EncounterRepository) CreateEncounter(encounter *model.Encounter) err
 
 	result, err := encountersCollection.InsertOne(ctx, &encounter)
 	if err != nil {
-		repo.logger.Println(err)
+		repo.store.logger.Println(err)
 		return err
 	}
-	repo.logger.Printf("Documents ID: %v\n", result.InsertedID)
+	repo.store.logger.Printf("Documents ID: %v\n", result.InsertedID)
 	return nil
 }
 
@@ -144,10 +66,10 @@ func (repo *EncounterRepository) CreateSocialEncounter(encounter *model.SocialEn
 
 	result, err := socialEncountersCollection.InsertOne(ctx, &encounter)
 	if err != nil {
-		repo.logger.Println(err)
+		repo.store.logger.Println(err)
 		return err
 	}
-	repo.logger.Printf("Documents ID: %v\n", result.InsertedID)
+	repo.store.logger.Printf("Documents ID: %v\n", result.InsertedID)
 	return nil
 }
 
@@ -158,10 +80,10 @@ func (repo *EncounterRepository) CreateHiddenLocationEncounter(encounter *model.
 
 	result, err := hiddenLocationEncounterCollection.InsertOne(ctx, &encounter)
 	if err != nil {
-		repo.logger.Println(err)
+		repo.store.logger.Println(err)
 		return err
 	}
-	repo.logger.Printf("Documents ID: %v\n", result.InsertedID)
+	repo.store.logger.Printf("Documents ID: %v\n", result.InsertedID)
 	return nil
 }
 
@@ -175,11 +97,11 @@ func (r *EncounterRepository) GetAllEncounters() (model.Encounters, error) {
 	var encounters model.Encounters
 	encountersCursor, err := enocuntersCollection.Find(ctx, bson.M{})
 	if err != nil {
-		r.logger.Println(err)
+		r.store.logger.Println(err)
 		return nil, err
 	}
 	if err = encountersCursor.All(ctx, &encounters); err != nil {
-		r.logger.Println(err)
+		r.store.logger.Println(err)
 		return nil, err
 	}
 	return encounters, nil
@@ -204,11 +126,11 @@ func (r *EncounterRepository) GetAllHiddenLocationEncounters() (model.HiddenLoca
 	var encounters model.HiddenLocationEncounters
 	encountersCursor, err := enocuntersCollection.Find(ctx, bson.M{})
 	if err != nil {
-		r.logger.Println(err)
+		r.store.logger.Println(err)
 		return nil, err
 	}
 	if err = encountersCursor.All(ctx, &encounters); err != nil {
-		r.logger.Println(err)
+		r.store.logger.Println(err)
 		return nil, err
 	}
 	return encounters, nil
@@ -223,11 +145,11 @@ func (r *EncounterRepository) GetAllSocialEncounters() (model.SocialEncounters, 
 	var encounters model.SocialEncounters
 	encountersCursor, err := enocuntersCollection.Find(ctx, bson.M{})
 	if err != nil {
-		r.logger.Println(err)
+		r.store.logger.Println(err)
 		return nil, err
 	}
 	if err = encountersCursor.All(ctx, &encounters); err != nil {
-		r.logger.Println(err)
+		r.store.logger.Println(err)
 		return nil, err
 	}
 	return encounters, nil
@@ -280,7 +202,7 @@ func (repo *EncounterRepository) Update(encounter *model.Encounter) error {
 		return errors.New("Encounter not found")
 	}
 
-	repo.logger.Println("Rows affected: ", result.ModifiedCount)
+	repo.store.logger.Println("Rows affected: ", result.ModifiedCount)
 	return nil
 }
 
@@ -310,7 +232,7 @@ func (repo *EncounterRepository) UpdateHiddenLocationEncounter(encounter *model.
 		return errors.New("HiddenLocationEncounter not found")
 	}
 
-	repo.logger.Println("Rows affected: ", result.ModifiedCount)
+	repo.store.logger.Println("Rows affected: ", result.ModifiedCount)
 	return nil
 }
 
@@ -338,7 +260,7 @@ func (repo *EncounterRepository) UpdateSocialEncounter(encounter *model.SocialEn
 		return errors.New("SocialEncounter not found")
 	}
 
-	repo.logger.Println("Rows affected: ", result.ModifiedCount)
+	repo.store.logger.Println("Rows affected: ", result.ModifiedCount)
 	return nil
 }
 
@@ -418,7 +340,7 @@ func (r *EncounterRepository) DeleteSocialEncounter(socialEncounterID string) er
 
 	result, err := encountersCollection.DeleteOne(ctx, filter)
 	if err != nil {
-		r.logger.Println(err)
+		r.store.logger.Println(err)
 		return err
 	}
 
@@ -426,7 +348,7 @@ func (r *EncounterRepository) DeleteSocialEncounter(socialEncounterID string) er
 		return nil
 	}
 
-	r.logger.Printf("Deleted document ID: %v\n", objID)
+	r.store.logger.Printf("Deleted document ID: %v\n", objID)
 	return nil
 }
 
@@ -445,7 +367,7 @@ func (r *EncounterRepository) DeleteHiddenLocationEncounter(hiddenLocationEncoun
 
 	result, err := encountersCollection.DeleteOne(ctx, filter)
 	if err != nil {
-		r.logger.Println(err)
+		r.store.logger.Println(err)
 		return err
 	}
 
@@ -453,7 +375,7 @@ func (r *EncounterRepository) DeleteHiddenLocationEncounter(hiddenLocationEncoun
 		return nil
 	}
 
-	r.logger.Printf("Deleted document ID: %v\n", objID)
+	r.store.logger.Printf("Deleted document ID: %v\n", objID)
 	return nil
 }
 
@@ -472,7 +394,7 @@ func (r *EncounterRepository) DeleteEncounter(baseEncounterID string) error {
 
 	result, err := encountersCollection.DeleteOne(ctx, filter)
 	if err != nil {
-		r.logger.Println(err)
+		r.store.logger.Println(err)
 		return err
 	}
 
@@ -480,7 +402,7 @@ func (r *EncounterRepository) DeleteEncounter(baseEncounterID string) error {
 		return nil
 	}
 
-	r.logger.Printf("Deleted document ID: %v\n", objID)
+	r.store.logger.Printf("Deleted document ID: %v\n", objID)
 	return nil
 }
 

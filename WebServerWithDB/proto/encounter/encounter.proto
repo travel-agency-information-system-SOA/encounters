@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+option go_package = "proto/encounter";
+
+service Encounter {
+    rpc CreateSocialEncounter(WholeSocialEncounterMongoDto) returns (WholeSocialEncounterMongoDto) {}    
+}
+
+message WholeSocialEncounterMongoDto {
+        string EncounterId = 1;
+        string Name = 2;
+        string Description = 3;
+        int32 XpPoints = 4;
+        string Status = 5;
+        string Type = 6;
+        double Latitude = 7;
+        double Longitude = 8;
+        string Id = 9;
+        int32 TouristsRequiredForCompletion = 10;
+        double DistanceTreshold = 11;
+        repeated int64 TouristIDs = 12;
+        bool ShouldBeApproved = 13;
+}
