@@ -40,7 +40,8 @@ func main() {
 		port = "4000"
 	}
 
-	lis, err := net.Listen("tcp", "localhost:81")
+	//lis, err := net.Listen("tcp", "localhost:81")
+	lis, err := net.Listen("tcp", "encounters:4000")
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
@@ -140,6 +141,8 @@ func (s Server) CreateWholeHiddenLocationEncounter(ctx context.Context, req *enc
 */
 
 func (s Server) CreateSocialEncounter(ctx context.Context, socialEncounterDto *encounter.WholeSocialEncounterMongoDto) (*encounter.WholeSocialEncounterMongoDto, error) {
+
+	println("usao je na ENCOUNTERS GO")
 	// Generisanje novog ID-a
 	id := primitive.NewObjectID()
 
@@ -148,6 +151,11 @@ func (s Server) CreateSocialEncounter(ctx context.Context, socialEncounterDto *e
 	for i, v := range socialEncounterDto.TouristIDs {
 		touristIDs[i] = int(v)
 	}
+
+	println("Parametri metode:")
+	println("socialEncounterDto.Name:", socialEncounterDto.Name)
+	println("socialEncounterDto.Description:", socialEncounterDto.Description)
+	println("socialEncounterDto.XpPoints:", socialEncounterDto.XpPoints)
 
 	// Kreiranje novog SocialEncounter objekta prema novom modelu
 	newSocialEncounter := model.SocialEncounter{
@@ -179,6 +187,7 @@ func (s Server) CreateSocialEncounter(ctx context.Context, socialEncounterDto *e
 	}
 
 	// Vraćanje odgovora koristeći novi model
+
 	return &encounter.WholeSocialEncounterMongoDto{
 		Id:                            id.Hex(), // Pretvaranje ObjectID u heksadecimalni string
 		Name:                          socialEncounterDto.Name,
