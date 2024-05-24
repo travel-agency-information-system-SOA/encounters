@@ -59,12 +59,48 @@ func (repo *EncounterRepository) CreateEncounter(encounter *model.Encounter) err
 	return nil
 }
 
+/*
+OVO VALJA AL DA PROBAM JOS NESTO
 func (repo *EncounterRepository) CreateSocialEncounter(encounter *model.SocialEncounter) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	socialEncountersCollection := repo.getSocialEncountersCollection()
 
 	result, err := socialEncountersCollection.InsertOne(ctx, &encounter)
+	if err != nil {
+		repo.store.logger.Println(err)
+		return err
+	}
+	repo.store.logger.Printf("Documents ID: %v\n", result.InsertedID)
+	return nil
+}
+*/
+
+func (repo *EncounterRepository) CreateSocialEncounter(encounter *model.SocialEncounter) error {
+	baseEncounter := &model.Encounter{
+		Id:               encounter.Encounter.Id,
+		Name:             encounter.Encounter.Name,
+		Description:      encounter.Encounter.Description,
+		XpPoints:         encounter.Encounter.XpPoints,
+		Status:           encounter.Encounter.Status,
+		Type:             encounter.Encounter.Type,
+		Latitude:         encounter.Encounter.Latitude,
+		Longitude:        encounter.Encounter.Longitude,
+		ShouldBeApproved: encounter.Encounter.ShouldBeApproved,
+	}
+
+	if err := repo.CreateEncounter(baseEncounter); err != nil {
+		repo.store.logger.Println(err)
+		return err
+	}
+
+	//encounter.EncounterId = baseEncounter.ID
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	socialEncountersCollection := repo.getSocialEncountersCollection()
+
+	result, err := socialEncountersCollection.InsertOne(ctx, encounter)
 	if err != nil {
 		repo.store.logger.Println(err)
 		return err

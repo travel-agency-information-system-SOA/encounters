@@ -26,7 +26,7 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type EncounterClient interface {
-	CreateSocialEncounter(ctx context.Context, in *WholeSocialEncounterMongoDto, opts ...grpc.CallOption) (*WholeSocialEncounterMongoDto, error)
+	CreateSocialEncounter(ctx context.Context, in *SocialEnocunter, opts ...grpc.CallOption) (*SocialEnocunter, error)
 }
 
 type encounterClient struct {
@@ -37,8 +37,8 @@ func NewEncounterClient(cc grpc.ClientConnInterface) EncounterClient {
 	return &encounterClient{cc}
 }
 
-func (c *encounterClient) CreateSocialEncounter(ctx context.Context, in *WholeSocialEncounterMongoDto, opts ...grpc.CallOption) (*WholeSocialEncounterMongoDto, error) {
-	out := new(WholeSocialEncounterMongoDto)
+func (c *encounterClient) CreateSocialEncounter(ctx context.Context, in *SocialEnocunter, opts ...grpc.CallOption) (*SocialEnocunter, error) {
+	out := new(SocialEnocunter)
 	err := c.cc.Invoke(ctx, Encounter_CreateSocialEncounter_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -50,7 +50,7 @@ func (c *encounterClient) CreateSocialEncounter(ctx context.Context, in *WholeSo
 // All implementations must embed UnimplementedEncounterServer
 // for forward compatibility
 type EncounterServer interface {
-	CreateSocialEncounter(context.Context, *WholeSocialEncounterMongoDto) (*WholeSocialEncounterMongoDto, error)
+	CreateSocialEncounter(context.Context, *SocialEnocunter) (*SocialEnocunter, error)
 	mustEmbedUnimplementedEncounterServer()
 }
 
@@ -58,7 +58,7 @@ type EncounterServer interface {
 type UnimplementedEncounterServer struct {
 }
 
-func (UnimplementedEncounterServer) CreateSocialEncounter(context.Context, *WholeSocialEncounterMongoDto) (*WholeSocialEncounterMongoDto, error) {
+func (UnimplementedEncounterServer) CreateSocialEncounter(context.Context, *SocialEnocunter) (*SocialEnocunter, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateSocialEncounter not implemented")
 }
 func (UnimplementedEncounterServer) mustEmbedUnimplementedEncounterServer() {}
@@ -75,7 +75,7 @@ func RegisterEncounterServer(s grpc.ServiceRegistrar, srv EncounterServer) {
 }
 
 func _Encounter_CreateSocialEncounter_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(WholeSocialEncounterMongoDto)
+	in := new(SocialEnocunter)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -87,7 +87,7 @@ func _Encounter_CreateSocialEncounter_Handler(srv interface{}, ctx context.Conte
 		FullMethod: Encounter_CreateSocialEncounter_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(EncounterServer).CreateSocialEncounter(ctx, req.(*WholeSocialEncounterMongoDto))
+		return srv.(EncounterServer).CreateSocialEncounter(ctx, req.(*SocialEnocunter))
 	}
 	return interceptor(ctx, in, info, handler)
 }

@@ -140,7 +140,7 @@ func (s Server) CreateWholeHiddenLocationEncounter(ctx context.Context, req *enc
 }
 */
 
-func (s Server) CreateSocialEncounter(ctx context.Context, socialEncounterDto *encounter.WholeSocialEncounterMongoDto) (*encounter.WholeSocialEncounterMongoDto, error) {
+func (s Server) CreateSocialEncounter(ctx context.Context, socialEncounterDto *encounter.SocialEnocunter) (*encounter.SocialEnocunter, error) {
 
 	println("usao je na ENCOUNTERS GO")
 	// Generisanje novog ID-a
@@ -188,7 +188,7 @@ func (s Server) CreateSocialEncounter(ctx context.Context, socialEncounterDto *e
 
 	// Vraćanje odgovora koristeći novi model
 
-	return &encounter.WholeSocialEncounterMongoDto{
+	return &encounter.SocialEnocunter{
 		Id:                            id.Hex(), // Pretvaranje ObjectID u heksadecimalni string
 		Name:                          socialEncounterDto.Name,
 		Description:                   socialEncounterDto.Description,
