@@ -76,6 +76,39 @@ func (repo *EncounterRepository) CreateSocialEncounter(encounter *model.SocialEn
 }
 */
 
+func (repo *EncounterRepository) CreateHiddenLocationEncounter(encounter *model.HiddenLocationEncounter) error {
+	baseEncounter := &model.Encounter{
+		Id:               encounter.Encounter.Id,
+		Name:             encounter.Encounter.Name,
+		Description:      encounter.Encounter.Description,
+		XpPoints:         encounter.Encounter.XpPoints,
+		Status:           encounter.Encounter.Status,
+		Type:             encounter.Encounter.Type,
+		Latitude:         encounter.Encounter.Latitude,
+		Longitude:        encounter.Encounter.Longitude,
+		ShouldBeApproved: encounter.Encounter.ShouldBeApproved,
+	}
+
+	if err := repo.CreateEncounter(baseEncounter); err != nil {
+		repo.store.logger.Println(err)
+		return err
+	}
+
+	//encounter.EncounterId = baseEncounter.ID
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	hiddenLocationEncounterCollection := repo.getHiddenLocationEncountersCollection()
+
+	result, err := hiddenLocationEncounterCollection.InsertOne(ctx, encounter)
+	if err != nil {
+		repo.store.logger.Println(err)
+		return err
+	}
+	repo.store.logger.Printf("Documents ID: %v\n", result.InsertedID)
+	return nil
+}
+
 func (repo *EncounterRepository) CreateSocialEncounter(encounter *model.SocialEncounter) error {
 	baseEncounter := &model.Encounter{
 		Id:               encounter.Encounter.Id,
@@ -109,6 +142,7 @@ func (repo *EncounterRepository) CreateSocialEncounter(encounter *model.SocialEn
 	return nil
 }
 
+/*
 func (repo *EncounterRepository) CreateHiddenLocationEncounter(encounter *model.HiddenLocationEncounter) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
@@ -122,6 +156,7 @@ func (repo *EncounterRepository) CreateHiddenLocationEncounter(encounter *model.
 	repo.store.logger.Printf("Documents ID: %v\n", result.InsertedID)
 	return nil
 }
+*/
 
 func (r *EncounterRepository) GetAllEncounters() (model.Encounters, error) {
 	// Initialise context (after 5 seconds timeout, abort operation)

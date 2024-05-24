@@ -140,13 +140,11 @@ func (s Server) CreateWholeHiddenLocationEncounter(ctx context.Context, req *enc
 }
 */
 
-func (s Server) CreateSocialEncounter(ctx context.Context, socialEncounterDto *encounter.SocialEnocunter) (*encounter.SocialEnocunter, error) {
+func (s Server) CreateSocialEncounter(ctx context.Context, socialEncounterDto *encounter.SocialEnc) (*encounter.SocialEnc, error) {
 
 	println("usao je na ENCOUNTERS GO")
-	// Generisanje novog ID-a
 	id := primitive.NewObjectID()
 
-	// Konverzija []int64 na []int
 	touristIDs := make([]int, len(socialEncounterDto.TouristIDs))
 	for i, v := range socialEncounterDto.TouristIDs {
 		touristIDs[i] = int(v)
@@ -176,20 +174,16 @@ func (s Server) CreateSocialEncounter(ctx context.Context, socialEncounterDto *e
 		TouristIDs:                    touristIDs, // Koristimo konvertovanu listu
 	}
 
-	// Kreiranje EncounterService objekta sa ispravnim argumentima
 	encounterService := service.NewEncounterService(s.EncounterRepo)
 
-	// Kreiranje socijalnog encounter-a
 	err := encounterService.CreateSocialEncounter(&newSocialEncounter)
 	if err != nil {
 		println("Error while creating a new social encounter")
 		return nil, err // Vraćamo error umesto nil
 	}
 
-	// Vraćanje odgovora koristeći novi model
-
-	return &encounter.SocialEnocunter{
-		Id:                            id.Hex(), // Pretvaranje ObjectID u heksadecimalni string
+	return &encounter.SocialEnc{
+		Id:                            id.Hex(),
 		Name:                          socialEncounterDto.Name,
 		Description:                   socialEncounterDto.Description,
 		XpPoints:                      socialEncounterDto.XpPoints,
@@ -200,6 +194,57 @@ func (s Server) CreateSocialEncounter(ctx context.Context, socialEncounterDto *e
 		ShouldBeApproved:              socialEncounterDto.ShouldBeApproved,
 		TouristsRequiredForCompletion: int32(newSocialEncounter.TouristsRequiredForCompletion),
 		DistanceTreshold:              newSocialEncounter.DistanceTreshold,
-		TouristIDs:                    socialEncounterDto.TouristIDs, // Vraćamo originalnu listu int64
+		TouristIDs:                    socialEncounterDto.TouristIDs,
+	}, nil
+}
+
+func (s Server) CreateHiddenLocationEncounter(ctx context.Context, hiddenLocationEncounter *encounter.HiddenLocationEnc) (*encounter.HiddenLocationEnc, error) {
+	println("usao je na ENCOUNTERS GO HIDDEN LOCATION ENC")
+	println(hiddenLocationEncounter)
+
+	id := primitive.NewObjectID()
+
+	newHiddenLocationEncounter := model.HiddenLocationEncounter{
+		Id:               id,
+		ImageURL:         hiddenLocationEncounter.ImageURL,
+		ImageLatitude:    float64(hiddenLocationEncounter.ImageLatitude),
+		ImageLongitude:   float64(hiddenLocationEncounter.ImageLongitude),
+		DistanceTreshold: float64(hiddenLocationEncounter.DistanceTreshold),
+		Encounter: model.Encounter{
+			Id:               id,
+			Name:             hiddenLocationEncounter.Name,
+			Description:      hiddenLocationEncounter.Description,
+			XpPoints:         int(hiddenLocationEncounter.XpPoints),
+			Status:           hiddenLocationEncounter.Status,
+			Type:             hiddenLocationEncounter.Type,
+			Longitude:        hiddenLocationEncounter.Longitude,
+			Latitude:         hiddenLocationEncounter.Latitude,
+			ShouldBeApproved: hiddenLocationEncounter.ShouldBeApproved,
+		},
+	}
+
+	encounterService := service.NewEncounterService(s.EncounterRepo)
+
+	err := encounterService.CreateHiddenLocationEncounter(&newHiddenLocationEncounter)
+	if err != nil {
+		println("Error while creating a new social encounter")
+		return nil, err // Vraćamo error umesto nil
+	}
+
+	return &encounter.HiddenLocationEnc{
+		Id:               id.Hex(),
+		Name:             hiddenLocationEncounter.Name,
+		Description:      hiddenLocationEncounter.Description,
+		XpPoints:         hiddenLocationEncounter.XpPoints,
+		Status:           hiddenLocationEncounter.Status,
+		Type:             hiddenLocationEncounter.Type,
+		Latitude:         hiddenLocationEncounter.Latitude,
+		Longitude:        hiddenLocationEncounter.Longitude,
+		EncounterId:      newHiddenLocationEncounter.Encounter.Id.Hex(),
+		ImageURL:         hiddenLocationEncounter.ImageURL,
+		ImageLatitude:    hiddenLocationEncounter.ImageLatitude,
+		ImageLongitude:   hiddenLocationEncounter.ImageLongitude,
+		DistanceTreshold: hiddenLocationEncounter.DistanceTreshold,
+		ShouldBeApproved: hiddenLocationEncounter.ShouldBeApproved,
 	}, nil
 }

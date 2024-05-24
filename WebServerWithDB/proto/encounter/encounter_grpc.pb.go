@@ -19,14 +19,16 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Encounter_CreateSocialEncounter_FullMethodName = "/Encounter/CreateSocialEncounter"
+	Encounter_CreateSocialEncounter_FullMethodName         = "/Encounter/CreateSocialEncounter"
+	Encounter_CreateHiddenLocationEncounter_FullMethodName = "/Encounter/CreateHiddenLocationEncounter"
 )
 
 // EncounterClient is the client API for Encounter service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type EncounterClient interface {
-	CreateSocialEncounter(ctx context.Context, in *SocialEnocunter, opts ...grpc.CallOption) (*SocialEnocunter, error)
+	CreateSocialEncounter(ctx context.Context, in *SocialEnc, opts ...grpc.CallOption) (*SocialEnc, error)
+	CreateHiddenLocationEncounter(ctx context.Context, in *HiddenLocationEnc, opts ...grpc.CallOption) (*HiddenLocationEnc, error)
 }
 
 type encounterClient struct {
@@ -37,9 +39,18 @@ func NewEncounterClient(cc grpc.ClientConnInterface) EncounterClient {
 	return &encounterClient{cc}
 }
 
-func (c *encounterClient) CreateSocialEncounter(ctx context.Context, in *SocialEnocunter, opts ...grpc.CallOption) (*SocialEnocunter, error) {
-	out := new(SocialEnocunter)
+func (c *encounterClient) CreateSocialEncounter(ctx context.Context, in *SocialEnc, opts ...grpc.CallOption) (*SocialEnc, error) {
+	out := new(SocialEnc)
 	err := c.cc.Invoke(ctx, Encounter_CreateSocialEncounter_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *encounterClient) CreateHiddenLocationEncounter(ctx context.Context, in *HiddenLocationEnc, opts ...grpc.CallOption) (*HiddenLocationEnc, error) {
+	out := new(HiddenLocationEnc)
+	err := c.cc.Invoke(ctx, Encounter_CreateHiddenLocationEncounter_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -50,7 +61,8 @@ func (c *encounterClient) CreateSocialEncounter(ctx context.Context, in *SocialE
 // All implementations must embed UnimplementedEncounterServer
 // for forward compatibility
 type EncounterServer interface {
-	CreateSocialEncounter(context.Context, *SocialEnocunter) (*SocialEnocunter, error)
+	CreateSocialEncounter(context.Context, *SocialEnc) (*SocialEnc, error)
+	CreateHiddenLocationEncounter(context.Context, *HiddenLocationEnc) (*HiddenLocationEnc, error)
 	mustEmbedUnimplementedEncounterServer()
 }
 
@@ -58,8 +70,11 @@ type EncounterServer interface {
 type UnimplementedEncounterServer struct {
 }
 
-func (UnimplementedEncounterServer) CreateSocialEncounter(context.Context, *SocialEnocunter) (*SocialEnocunter, error) {
+func (UnimplementedEncounterServer) CreateSocialEncounter(context.Context, *SocialEnc) (*SocialEnc, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateSocialEncounter not implemented")
+}
+func (UnimplementedEncounterServer) CreateHiddenLocationEncounter(context.Context, *HiddenLocationEnc) (*HiddenLocationEnc, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateHiddenLocationEncounter not implemented")
 }
 func (UnimplementedEncounterServer) mustEmbedUnimplementedEncounterServer() {}
 
@@ -75,7 +90,7 @@ func RegisterEncounterServer(s grpc.ServiceRegistrar, srv EncounterServer) {
 }
 
 func _Encounter_CreateSocialEncounter_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(SocialEnocunter)
+	in := new(SocialEnc)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -87,7 +102,25 @@ func _Encounter_CreateSocialEncounter_Handler(srv interface{}, ctx context.Conte
 		FullMethod: Encounter_CreateSocialEncounter_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(EncounterServer).CreateSocialEncounter(ctx, req.(*SocialEnocunter))
+		return srv.(EncounterServer).CreateSocialEncounter(ctx, req.(*SocialEnc))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Encounter_CreateHiddenLocationEncounter_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(HiddenLocationEnc)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(EncounterServer).CreateHiddenLocationEncounter(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Encounter_CreateHiddenLocationEncounter_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(EncounterServer).CreateHiddenLocationEncounter(ctx, req.(*HiddenLocationEnc))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -102,6 +135,10 @@ var Encounter_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CreateSocialEncounter",
 			Handler:    _Encounter_CreateSocialEncounter_Handler,
+		},
+		{
+			MethodName: "CreateHiddenLocationEncounter",
+			Handler:    _Encounter_CreateHiddenLocationEncounter_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

@@ -3,10 +3,11 @@ syntax = "proto3";
 option go_package = "proto/encounter";
 
 service Encounter {
-    rpc CreateSocialEncounter(SocialEnocunter) returns (SocialEnocunter) {}    
+    rpc CreateSocialEncounter(SocialEnc) returns (SocialEnc) {}    
+    rpc CreateHiddenLocationEncounter(HiddenLocationEnc) returns (HiddenLocationEnc) {}
 }
 
-message SocialEnocunter {
+message SocialEnc {
         string encounterId = 1;
         string name = 2;
         string description = 3;
@@ -20,4 +21,21 @@ message SocialEnocunter {
         double distanceTreshold = 11;
         repeated int64 touristIDs = 12;
         bool shouldBeApproved = 13;
+}
+
+message HiddenLocationEnc {
+     string id = 1;
+     string name = 2;
+      string description = 3;
+      int32 xpPoints = 4;
+      string status = 5;
+      string type = 6;
+      double latitude = 7;
+      double longitude = 8;
+      string encounterId = 9;
+      string imageURL = 10;
+      double imageLatitude = 11;
+      double imageLongitude = 12;
+      double distanceTreshold = 13;
+      bool shouldBeApproved = 14;
 }
