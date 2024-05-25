@@ -248,3 +248,35 @@ func (s Server) CreateHiddenLocationEncounter(ctx context.Context, hiddenLocatio
 		ShouldBeApproved: hiddenLocationEncounter.ShouldBeApproved,
 	}, nil
 }
+
+func (s *Server) GetAllEncounters(ctx context.Context, request *encounter.PageRequest) (*encounter.ListEnc, error) {
+	println("usao je na ENCOUNTERS GO GET ALL ENC")
+
+	encounterService := service.NewEncounterService(s.EncounterRepo)
+	encounters, err := encounterService.GetAllEncounters()
+	if err != nil {
+		return nil, err
+	}
+
+	var encDtos []*encounter.Enc
+	for _, encDto := range encounters {
+		encDto := &encounter.Enc{
+			Id:               encDto.Id.Hex(),
+			Name:             encDto.Name,
+			Description:      encDto.Description,
+			XpPoints:         int32(encDto.XpPoints),
+			Type:             encDto.Type,
+			Latitude:         encDto.Latitude,
+			Longitude:        encDto.Longitude,
+			ShouldBeApproved: encDto.ShouldBeApproved,
+		}
+		encDtos = append(encDtos, encDto)
+	}
+
+	response := &encounter.ListEnc{
+		Results:    encDtos,
+		TotalCount: int32(len(encounters)),
+	}
+
+	return response, nil
+}

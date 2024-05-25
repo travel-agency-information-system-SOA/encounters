@@ -21,6 +21,7 @@ const _ = grpc.SupportPackageIsVersion7
 const (
 	Encounter_CreateSocialEncounter_FullMethodName         = "/Encounter/CreateSocialEncounter"
 	Encounter_CreateHiddenLocationEncounter_FullMethodName = "/Encounter/CreateHiddenLocationEncounter"
+	Encounter_GetAllEncounters_FullMethodName              = "/Encounter/GetAllEncounters"
 )
 
 // EncounterClient is the client API for Encounter service.
@@ -29,6 +30,7 @@ const (
 type EncounterClient interface {
 	CreateSocialEncounter(ctx context.Context, in *SocialEnc, opts ...grpc.CallOption) (*SocialEnc, error)
 	CreateHiddenLocationEncounter(ctx context.Context, in *HiddenLocationEnc, opts ...grpc.CallOption) (*HiddenLocationEnc, error)
+	GetAllEncounters(ctx context.Context, in *PageRequest, opts ...grpc.CallOption) (*ListEnc, error)
 }
 
 type encounterClient struct {
@@ -57,12 +59,22 @@ func (c *encounterClient) CreateHiddenLocationEncounter(ctx context.Context, in 
 	return out, nil
 }
 
+func (c *encounterClient) GetAllEncounters(ctx context.Context, in *PageRequest, opts ...grpc.CallOption) (*ListEnc, error) {
+	out := new(ListEnc)
+	err := c.cc.Invoke(ctx, Encounter_GetAllEncounters_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // EncounterServer is the server API for Encounter service.
 // All implementations must embed UnimplementedEncounterServer
 // for forward compatibility
 type EncounterServer interface {
 	CreateSocialEncounter(context.Context, *SocialEnc) (*SocialEnc, error)
 	CreateHiddenLocationEncounter(context.Context, *HiddenLocationEnc) (*HiddenLocationEnc, error)
+	GetAllEncounters(context.Context, *PageRequest) (*ListEnc, error)
 	mustEmbedUnimplementedEncounterServer()
 }
 
@@ -75,6 +87,9 @@ func (UnimplementedEncounterServer) CreateSocialEncounter(context.Context, *Soci
 }
 func (UnimplementedEncounterServer) CreateHiddenLocationEncounter(context.Context, *HiddenLocationEnc) (*HiddenLocationEnc, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateHiddenLocationEncounter not implemented")
+}
+func (UnimplementedEncounterServer) GetAllEncounters(context.Context, *PageRequest) (*ListEnc, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetAllEncounters not implemented")
 }
 func (UnimplementedEncounterServer) mustEmbedUnimplementedEncounterServer() {}
 
@@ -125,6 +140,24 @@ func _Encounter_CreateHiddenLocationEncounter_Handler(srv interface{}, ctx conte
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Encounter_GetAllEncounters_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PageRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(EncounterServer).GetAllEncounters(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Encounter_GetAllEncounters_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(EncounterServer).GetAllEncounters(ctx, req.(*PageRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Encounter_ServiceDesc is the grpc.ServiceDesc for Encounter service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -139,6 +172,10 @@ var Encounter_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CreateHiddenLocationEncounter",
 			Handler:    _Encounter_CreateHiddenLocationEncounter_Handler,
+		},
+		{
+			MethodName: "GetAllEncounters",
+			Handler:    _Encounter_GetAllEncounters_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
