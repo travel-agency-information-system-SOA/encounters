@@ -13,15 +13,14 @@ import (
 
 	"github.com/google/uuid"
 	"go.mongodb.org/mongo-driver/bson/primitive"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/reflection"
 
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp"
 	"go.opentelemetry.io/otel/sdk/resource"
-	"go.opentelemetry.io/otel/sdk/trace"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/reflection"
 )
 
 func main() {
@@ -56,12 +55,40 @@ func main() {
 		}()
 	*/
 
+	/*
+		shutdown, err := initTracer()
+		if err != nil {
+			log.Fatalf("FAILED TO INITIALIZE TRACER: %v", err)
+		}
+		defer shutdown(context.Background())
+	*/
+
+	//
+	//TRACING 2.0
+
+	// OpenTelemetry
+	/*var err error
+	tp, err = initTracer()
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer func() {
+		if err := tp.Shutdown(context.Background()); err != nil {
+			log.Printf("Error shutting down tracer provider: %v", err)
+		}
+	}()
+	otel.SetTracerProvider(tp)
+	otel.SetTextMapPropagator(propagation.NewCompositeTextMapPropagator(propagation.TraceContext{}, propagation.Baggage{}))
+	*/
 	shutdown, err := initTracer()
 	if err != nil {
-		log.Fatalf("FAILED TO INITIALIZE TRACER: %v", err)
+		log.Fatal(err)
 	}
-	defer shutdown(context.Background())
-
+	defer func() {
+		if err := shutdown(context.Background()); err != nil {
+			log.Printf("Error shutting down tracer provider: %v", err)
+		}
+	}()
 	//
 
 	timeoutContext, cancel := context.WithTimeout(context.Background(), 30*time.Second)
@@ -294,7 +321,7 @@ func (s *Server) GetAllEncounters(ctx context.Context, request *encounter.PageRe
 
 ///TRACINGGG???
 
-var tp *trace.TracerProvider
+//var tp *trace.TracerProvider
 
 /*
 func initTracer() (*trace.TracerProvider, error) {
@@ -307,6 +334,7 @@ func initTracer() (*trace.TracerProvider, error) {
 }
 */
 
+/*
 func initTracer() (func(context.Context) error, error) {
 	log.Println("Initializing tracer")
 	jaegerExporter, err := otlptracehttp.New(context.Background(), otlptracehttp.WithEndpoint("jaeger:4318"), otlptracehttp.WithInsecure())
@@ -336,6 +364,7 @@ func initTracer() (func(context.Context) error, error) {
 	log.Println("Tracer initialized successfully")
 	return tp.Shutdown, nil
 }
+*/
 
 /*
 func initFileTracer() (*trace.TracerProvider, error) {
@@ -370,5 +399,60 @@ func initJaegerTracer(url string) (*trace.TracerProvider, error) {
 			semconv.ServiceNameKey.String("encounters"),
 		)),
 	), nil
+}
+*/
+
+//TRACING
+
+func initTracer() (func(context.Context) error, error) {
+
+	jaegerExporter, err := otlptracehttp.New(context.Background(), otlptracehttp.WithEndpoint("jaeger:4318"), otlptracehttp.WithInsecure())
+	if err != nil {
+		return nil, err
+	}
+
+	res, err := resource.New(
+		context.Background(),
+		resource.WithAttributes(
+			attribute.String("service.name", "encounters"),
+		),
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	tp := sdktrace.NewTracerProvider(
+		sdktrace.WithBatcher(jaegerExporter),
+		sdktrace.WithResource(res),
+	)
+
+	otel.SetTracerProvider(tp)
+	return tp.Shutdown, nil
+}
+
+/*
+func initTracer() (func(context.Context) error, error) {
+	jaegerExporter, err := jaeger.New(jaeger.WithCollectorEndpoint(jaeger.WithEndpoint("http://localhost:14268/api/traces")))
+	if err != nil {
+		return nil, err
+	}
+
+	res, err := resource.New(
+		context.Background(),
+		resource.WithAttributes(
+			attribute.String("service.name", "followers"),
+		),
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	tp := sdktrace.NewTracerProvider(
+		sdktrace.WithBatcher(jaegerExporter),
+		sdktrace.WithResource(res),
+	)
+
+	otel.SetTracerProvider(tp)
+	return tp.Shutdown, nil
 }
 */
