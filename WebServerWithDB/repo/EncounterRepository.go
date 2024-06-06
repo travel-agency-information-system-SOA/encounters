@@ -9,6 +9,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.opentelemetry.io/otel"
 )
 
 /*
@@ -100,6 +101,11 @@ func (repo *EncounterRepository) CreateHiddenLocationEncounter(encounter *model.
 	defer cancel()
 	hiddenLocationEncounterCollection := repo.getHiddenLocationEncountersCollection()
 
+	//tracing
+	tracer := otel.Tracer("repository")
+	ctx, span := tracer.Start(ctx, "CreateHiddenLocationEncounter")
+	defer span.End()
+
 	result, err := hiddenLocationEncounterCollection.InsertOne(ctx, encounter)
 	if err != nil {
 		repo.store.logger.Println(err)
@@ -133,6 +139,11 @@ func (repo *EncounterRepository) CreateSocialEncounter(encounter *model.SocialEn
 	defer cancel()
 	socialEncountersCollection := repo.getSocialEncountersCollection()
 
+	//tracing
+	tracer := otel.Tracer("repository")
+	ctx, span := tracer.Start(ctx, "CreateSocialEncounter")
+	defer span.End()
+
 	result, err := socialEncountersCollection.InsertOne(ctx, encounter)
 	if err != nil {
 		repo.store.logger.Println(err)
@@ -160,8 +171,14 @@ func (repo *EncounterRepository) CreateHiddenLocationEncounter(encounter *model.
 
 func (r *EncounterRepository) GetAllEncounters() (model.Encounters, error) {
 	// Initialise context (after 5 seconds timeout, abort operation)
+
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
+
+	//tracing
+	tracer := otel.Tracer("repository")
+	ctx, span := tracer.Start(ctx, "GetAllEncounters")
+	defer span.End()
 
 	enocuntersCollection := r.getCollection()
 
