@@ -25,62 +25,12 @@ import (
 
 func main() {
 
-	//TRACING
-
 	log.SetOutput(os.Stderr)
 
-	// OpenTelemetry
-	/*var err error
-	tp, err = initTracer()
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer func() {
-		if err := tp.Shutdown(context.Background()); err != nil {
-			log.Printf("Error shutting down tracer provider: %v", err)
-		}
-	}()
-	otel.SetTracerProvider(tp)
-	otel.SetTextMapPropagator(propagation.NewCompositeTextMapPropagator(propagation.TraceContext{}, propagation.Baggage{}))
-	*/
-	/*
-		shutdown, err := initTracer()
-		if err != nil {
-			log.Fatal(err)
-		}
-		defer func() {
-			if err := shutdown(context.Background()); err != nil {
-				log.Printf("Error shutting down tracer provider: %v", err)
-			}
-		}()
-	*/
+	//TRACING
 
-	/*
-		shutdown, err := initTracer()
-		if err != nil {
-			log.Fatalf("FAILED TO INITIALIZE TRACER: %v", err)
-		}
-		defer shutdown(context.Background())
-	*/
-
-	//
-	//TRACING 2.0
-
-	// OpenTelemetry
-	/*var err error
-	tp, err = initTracer()
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer func() {
-		if err := tp.Shutdown(context.Background()); err != nil {
-			log.Printf("Error shutting down tracer provider: %v", err)
-		}
-	}()
-	otel.SetTracerProvider(tp)
-	otel.SetTextMapPropagator(propagation.NewCompositeTextMapPropagator(propagation.TraceContext{}, propagation.Baggage{}))
-	*/
-	shutdown, err := initTracer()
+	//shutdown - pravilno zatvaranje traceova
+	shutdown, err := initTracer() //inicjalizacija traceera
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -89,6 +39,11 @@ func main() {
 			log.Printf("Error shutting down tracer provider: %v", err)
 		}
 	}()
+	//DEFER
+	// - odlozeno zatvaranje tracer-a
+	// - odlaže izvršavanje funkcije do trenutka kada se funkcija u kojoj se defer nalazi završi
+	// - u ovom slučaju, funkcija za zatvaranje tracer-a će se izvršiti na kraju glavne funkcije (main ili bilo koje druge funkcije u kojoj je ovaj kod)
+
 	//
 
 	timeoutContext, cancel := context.WithTimeout(context.Background(), 30*time.Second)
@@ -144,9 +99,12 @@ func (s Server) CreateSocialEncounter(ctx context.Context, socialEncounterDto *e
 	println("usao je na ENCOUNTERS GO")
 	id := primitive.NewObjectID()
 
-	tracer := otel.Tracer("service")
-	ctx, span := tracer.Start(ctx, "CreateSocialEncounter")
+	tracer := otel.Tracer("service") //vraca tracer objekat, service - ime tracer-a
+	//tracer koristimo za stvaranje novih span-ova
+	//span - vremenski interval u kome se prati izvrsavanje odredjenog dela koda
+	ctx, span := tracer.Start(ctx, "CreateSocialEncounter") //zapocinje novi span, ime span-a opisuje operaciju koja se prati
 	defer span.End()
+	//osigurava da će span.End() biti pozvan kada funkcija u kojoj se ovaj kod nalazi završi svoje izvršenje, bez obzira na način završetka - normalno ili usred greske
 
 	touristIDs := make([]int, len(socialEncounterDto.TouristIDs))
 	for i, v := range socialEncounterDto.TouristIDs {
@@ -209,10 +167,6 @@ func (s Server) CreateHiddenLocationEncounter(ctx context.Context, hiddenLocatio
 	tracer := otel.Tracer("service")
 	ctx, span := tracer.Start(ctx, "CreateHiddenLocationEncounter")
 	defer span.End()
-	/*tr := otel.Tracer("encounter")
-	ctx, span := tr.Start(ctx, "CreateHiddenLocationEncounter")
-	defer span.End()
-	*/
 	//
 
 	id := primitive.NewObjectID()
@@ -265,30 +219,9 @@ func (s Server) CreateHiddenLocationEncounter(ctx context.Context, hiddenLocatio
 func (s *Server) GetAllEncounters(ctx context.Context, request *encounter.PageRequest) (*encounter.ListEnc, error) {
 	println("usao je na ENCOUNTERS GO GET ALL ENC")
 
-	//tracing
-
 	tracer := otel.Tracer("service")
 	ctx, span := tracer.Start(ctx, "GetAllEncounters")
 	defer span.End()
-
-	/*
-		tr := otel.Tracer("encounter")
-		ctx, span := tr.Start(ctx, "GetAllEncounters")
-		defer span.End()
-	*/
-	/*
-		tr := otel.Tracer("encounter")
-		ctx, span := tr.Start(ctx, "GetAllEncounters")
-		defer span.End()
-		users, err := s.EncounterRepo.GetAllEncounters()
-		if err != nil || users == nil {
-			span.RecordError(err)
-			println("Database exception: ", err)
-			return &encounter.BlogListResponse{
-				Following: make([]*follower.FollowingResponseDto, 0), //da se vrati prazna
-			}, nil
-		}
-	*/
 
 	encounterService := service.NewEncounterService(s.EncounterRepo)
 	encounters, err := encounterService.GetAllEncounters()
@@ -319,89 +252,6 @@ func (s *Server) GetAllEncounters(ctx context.Context, request *encounter.PageRe
 	return response, nil
 }
 
-///TRACINGGG???
-
-//var tp *trace.TracerProvider
-
-/*
-func initTracer() (*trace.TracerProvider, error) {
-	url := os.Getenv("JAEGER_ENDPOINT")
-	if len(url) > 0 {
-		return initJaegerTracer(url)
-	} else {
-		return initFileTracer()
-	}
-}
-*/
-
-/*
-func initTracer() (func(context.Context) error, error) {
-	log.Println("Initializing tracer")
-	jaegerExporter, err := otlptracehttp.New(context.Background(), otlptracehttp.WithEndpoint("jaeger:4318"), otlptracehttp.WithInsecure())
-
-	if err != nil {
-		log.Printf("Failed to create Jaeger exporter: %v", err)
-		return nil, err
-	}
-
-	res, err := resource.New(
-		context.Background(),
-		resource.WithAttributes(
-			attribute.String("service.name", "encounters"),
-		),
-	)
-	if err != nil {
-		log.Printf("Failed to create resource: %v", err)
-		return nil, err
-	}
-
-	tp := sdktrace.NewTracerProvider(
-		sdktrace.WithBatcher(jaegerExporter),
-		sdktrace.WithResource(res),
-	)
-
-	otel.SetTracerProvider(tp)
-	log.Println("Tracer initialized successfully")
-	return tp.Shutdown, nil
-}
-*/
-
-/*
-func initFileTracer() (*trace.TracerProvider, error) {
-	log.Println("Initializing tracing to traces.json")
-	f, err := os.Create("traces.json")
-	if err != nil {
-		return nil, err
-	}
-	exporter, err := stdouttrace.New(
-		stdouttrace.WithWriter(f),
-		stdouttrace.WithPrettyPrint(),
-	)
-	if err != nil {
-		return nil, err
-	}
-	return trace.NewTracerProvider(
-		trace.WithBatcher(exporter),
-		trace.WithSampler(trace.AlwaysSample()),
-	), nil
-}
-
-func initJaegerTracer(url string) (*trace.TracerProvider, error) {
-	log.Printf("Initializing tracing to jaeger at %s\n", url)
-	exporter, err := jaeger.New(jaeger.WithCollectorEndpoint(jaeger.WithEndpoint(url)))
-	if err != nil {
-		return nil, err
-	}
-	return trace.NewTracerProvider(
-		trace.WithBatcher(exporter),
-		trace.WithResource(resource.NewWithAttributes(
-			semconv.SchemaURL,
-			semconv.ServiceNameKey.String("encounters"),
-		)),
-	), nil
-}
-*/
-
 //TRACING
 
 func initTracer() (func(context.Context) error, error) {
@@ -429,30 +279,3 @@ func initTracer() (func(context.Context) error, error) {
 	otel.SetTracerProvider(tp)
 	return tp.Shutdown, nil
 }
-
-/*
-func initTracer() (func(context.Context) error, error) {
-	jaegerExporter, err := jaeger.New(jaeger.WithCollectorEndpoint(jaeger.WithEndpoint("http://localhost:14268/api/traces")))
-	if err != nil {
-		return nil, err
-	}
-
-	res, err := resource.New(
-		context.Background(),
-		resource.WithAttributes(
-			attribute.String("service.name", "followers"),
-		),
-	)
-	if err != nil {
-		return nil, err
-	}
-
-	tp := sdktrace.NewTracerProvider(
-		sdktrace.WithBatcher(jaegerExporter),
-		sdktrace.WithResource(res),
-	)
-
-	otel.SetTracerProvider(tp)
-	return tp.Shutdown, nil
-}
-*/
