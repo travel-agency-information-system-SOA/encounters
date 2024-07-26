@@ -8,7 +8,7 @@ We divided the basic monolith into several sections that became separate applica
 
 We ran them together using Docker.
 
-## Encounters
+# Encounters
 
 Encounters represent a distinct microservice that contains all the logic related to encounters created by tour authors, which tourists can trigger when they get close enough to a key point (checkpoint).
 
@@ -18,7 +18,43 @@ The controllers that used to call service methods now call methods from the Gola
 
 We integrated everything using Docker containers and ran them together. Docker enabled us to easily orchestrate and manage different services, improving the efficiency of development and testing.
 
-### Technologies
+## Transition to gRPC
+
+The transition to gRPC represents a significant step in enhancing our microservice architecture. This remote procedure call (RPC) framework offers numerous advantages over traditional RESTful APIs, especially in complex systems with a large number of microservices.
+
+gRPC uses Protocol Buffers (Protobuf) for data serialization, which allows for faster and more efficient encoding and decoding compared to JSON used in REST APIs. This significantly reduces message size and improves communication speed between services.
+
+Services and methods are defined in .proto files, providing clear and consistent API documentation. This makes it easier to maintain and enhance communication between services.
+
+The transition to gRPC has made our architecture more efficient, scalable, and easier to maintain, improving the overall performance and quality of communication between microservices.
+
+## Observability (Logging, Tracing, Metrics)
+
+To gain a better understanding of our system's functioning and to simplify error resolution, we introduced logging, tracing, and metrics (the three pillars of observability).
+
+**Tracing** and **logging** were implemented in the encounters microservice.
+
+### Tracing 
+
+Tracing allows us to track requests and their paths through the system, enabling easier identification of bottlenecks and errors.
+
+We use the **OpenTelemetry library** for tracing, as it offers a stable version for Go. 
+
+Trace manipulation is handled using the **TracingProvider**.
+
+Tools used for displaying traces:
+- **Jaeger**
+- **Grafana**
+
+### Logging 
+
+Logs are records of events within the system (errors, user actions), providing a detailed view of what is happening at any given moment.
+
+**Fluent-bit** is an aggregator that collects Docker logs from all containers and forwards them to **Loki**. 
+
+Additionally, **Grafana** is used for visualizing logs by utilizing Loki as a datasource.
+
+## Technologies
 
 - ***Server platform***: Go (Golang) 
 
@@ -28,7 +64,7 @@ We integrated everything using Docker containers and ran them together. Docker e
 
 - ***Back-end***: C# (ASP.NET) which interfaces with the Go-based microservice, managing requests and orchestrating the overall application flow
 
-### Getting started
+## Getting started
 
 To set up the project locally using Docker, follow these steps:
 
@@ -48,7 +84,7 @@ docker-compose down
 ```
 Use appropriate tools like pgAdmin and MongoDB Compass to interact with the database.
 
-### Configuration
+## Configuration
 
 Make sure to review the docker-compose.yml file and Dockerfiles for specific configuration details, such as environment variables, volume mounts, and network settings.
 
