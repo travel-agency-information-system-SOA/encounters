@@ -10,7 +10,7 @@ We ran them together using Docker.
 
 ## Encounters
 
-Encounters represent a distinct microservice that contains all the logic related to challenges created by tour authors, which tourists can trigger when they get close enough to a key point (checkpoint).
+Encounters represent a distinct microservice that contains all the logic related to encounters created by tour authors, which tourists can trigger when they get close enough to a key point (checkpoint).
 
 Initially, we extracted the encounters from the monolithic application by moving all the logic to the Go language (Golang). 
 
@@ -22,7 +22,7 @@ We integrated everything using Docker containers and ran them together. Docker e
 
 - ***Server platform***: Go (Golang) 
 
-- ***Client platform***: Angular with RESTful services for the front-end interface (TypeScript, HTML, CSS)
+- ***Client platform***: Angular (TypeScript, HTML, CSS) with RESTful services for the front-end interface
 
 - ***Database***: Document-oriented database (MongoDB)
 
